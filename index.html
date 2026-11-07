@@ -1,53 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f8f7">
   <title>Wealth Tracker</title>
 
   <style>
     :root {
-      --background: #f6f8f7;
+      color-scheme: light;
+      --bg: #f6f8f7;
       --surface: #fff;
-      --text: #17232b;
-      --muted: #687781;
-      --border: #e5ebe8;
-      --green: #167c5b;
-      --green-dark: #116448;
-      --green-light: #e9f6ef;
-      --red: #b44444;
-      --shadow: 0 8px 30px rgba(25, 55, 43, .045);
+      --surface-soft: #f9fbfa;
+      --ink: #172820;
+      --muted: #64766c;
+      --line: #e1eae4;
+      --green: #167453;
+      --green-dark: #115d42;
+      --green-soft: #e8f5ed;
+      --amber: #9a6515;
+      --amber-soft: #fff4df;
+      --red: #aa4050;
+      --red-soft: #fff0f2;
+      --shadow: 0 10px 35px rgba(20, 55, 35, .045);
     }
 
     * { box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      background: var(--background);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-        BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
     button, input, select { font: inherit; }
     button { cursor: pointer; }
-    a { color: inherit; }
-    .hidden { display: none !important; }
+    a { color: var(--green); }
+    [hidden], .hidden { display: none !important; }
 
-    .container {
-      width: min(1160px, calc(100% - 40px));
-      margin: 0 auto;
+    :focus-visible {
+      outline: 3px solid #8bceaa;
+      outline-offset: 2px;
+    }
+
+    .shell {
+      width: min(1160px, calc(100% - 32px));
+      margin: auto;
     }
 
     .site-header {
-      background: rgba(255, 255, 255, .92);
-      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, .96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
     }
 
     .header-inner {
-      min-height: 76px;
+      min-height: 70px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -55,39 +70,40 @@
     }
 
     .brand {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 11px;
+      gap: 10px;
+      color: var(--ink);
       font-size: 18px;
-      font-weight: 750;
+      font-weight: 780;
       letter-spacing: -.04em;
       text-decoration: none;
       white-space: nowrap;
     }
 
-    .brand-icon {
+    .brand-mark {
       display: grid;
       place-items: center;
       width: 36px;
       height: 36px;
       border-radius: 11px;
       background: var(--green);
-      color: #fff;
-      font-size: 20px;
+      color: white;
+      font-size: 21px;
     }
 
-    .header-actions {
+    .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       min-width: 0;
     }
 
     .header-email {
-      overflow: hidden;
       max-width: 220px;
+      overflow: hidden;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -98,766 +114,1212 @@
       justify-content: center;
       gap: 8px;
       min-height: 42px;
-      padding: 9px 16px;
-      border: 1px solid transparent;
+      padding: 9px 15px;
+      border: 1px solid var(--green);
       border-radius: 10px;
       background: var(--green);
-      color: #fff;
+      color: white;
       font-weight: 650;
       text-decoration: none;
       white-space: nowrap;
+      transition: background .15s, transform .15s;
     }
 
-    .button:hover { background: var(--green-dark); }
+    .button:hover:not(:disabled) { background: var(--green-dark); }
+    .button:active:not(:disabled) { transform: translateY(1px); }
     .button:disabled { opacity: .55; cursor: wait; }
 
-    .button-secondary {
-      border-color: var(--border);
-      background: #fff;
-      color: var(--text);
+    .button.secondary {
+      border-color: var(--line);
+      background: white;
+      color: var(--ink);
     }
 
-    .button-secondary:hover { background: #f4f7f5; }
+    .button.secondary:hover:not(:disabled) { background: #f1f6f2; }
 
-    .button-danger {
-      border-color: #f0dada;
-      background: #fff;
+    .button.danger {
+      border-color: #f0d5d9;
+      background: white;
       color: var(--red);
     }
 
-    .button-danger:hover { background: #fff3f3; }
+    .button.danger:hover:not(:disabled) { background: var(--red-soft); }
 
-    .button-small {
-      min-height: 36px;
-      padding: 6px 12px;
-      font-size: 13px;
+    .button.small {
+      min-height: 35px;
+      padding: 6px 11px;
+      font-size: 12px;
     }
+
+    .button.ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--green);
+    }
+
+    .button.ghost:hover:not(:disabled) { background: var(--green-soft); }
 
     .field {
       width: 100%;
       min-height: 43px;
-      padding: 9px 12px;
-      border: 1px solid #dce5e1;
+      padding: 9px 11px;
+      border: 1px solid #cfdcd3;
       border-radius: 9px;
-      outline: none;
-      background: #fff;
-      color: var(--text);
+      background: white;
+      color: var(--ink);
     }
 
-    .field:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(22, 124, 91, .12);
-    }
+    .field::placeholder { color: #98a69c; }
 
-    .field::placeholder { color: #96a29d; }
+    .field[aria-invalid="true"] {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px #aa40501a;
+    }
 
     label {
       display: block;
-      margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 650;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .hint {
-      color: var(--muted);
-      font-size: 13px;
-    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 5px; font-size: clamp(28px, 4vw, 38px); letter-spacing: -.055em; }
+    h2 { margin-bottom: 4px; font-size: 18px; letter-spacing: -.025em; }
+    h3 { margin-bottom: 3px; font-size: 15px; }
+    p { margin-bottom: 0; }
 
-    .message {
-      min-height: 20px;
-      margin: 12px 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .message.error { color: var(--red); }
-    .message.success { color: var(--green); }
-
-    /* Login */
-    .auth-page {
-      display: grid;
-      place-items: center;
-      min-height: calc(100vh - 77px);
-      padding: 48px 20px;
-    }
-
-    .auth-card {
-      width: min(100%, 440px);
-      padding: 36px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
     .eyebrow {
       color: var(--green);
-      font-size: 12px;
-      font-weight: 750;
-      letter-spacing: .09em;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
       text-transform: uppercase;
-    }
-
-    .auth-card h1 {
-      margin: 10px 0 8px;
-      font-size: clamp(26px, 5vw, 32px);
-      letter-spacing: -.045em;
-      line-height: 1.2;
-    }
-
-    .auth-card > p {
-      margin: 0 0 28px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .form-group { margin-bottom: 17px; }
-
-    .auth-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .auth-buttons .button { flex: 1; }
-
-    /* Dashboard */
-    main.dashboard { padding: 36px 0 70px; }
-
-    .page-heading,
-    .section-header {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .page-heading { margin-bottom: 20px; }
-
-    .page-heading h1 {
-      margin: 5px 0 0;
-      font-size: clamp(27px, 4vw, 36px);
-      letter-spacing: -.055em;
-      line-height: 1.15;
-    }
-
-    .page-heading p,
-    .section-header p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .heading-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-    }
-
-    .overview-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
     }
 
     .card {
       min-width: 0;
-      border: 1px solid var(--border);
+      padding: 23px;
+      border: 1px solid var(--line);
       border-radius: 17px;
       background: var(--surface);
       box-shadow: var(--shadow);
     }
 
-    .summary-card {
+    .stack { display: grid; gap: 17px; }
+
+    .section-heading {
       display: flex;
-      flex-direction: column;
+      align-items: flex-start;
       justify-content: space-between;
-      min-height: 215px;
-      padding: 26px;
-      background:
-        radial-gradient(circle at 90% 5%, rgba(38, 173, 123, .19), transparent 40%),
-        linear-gradient(135deg, #163e32, #102c28);
-      color: #fff;
+      gap: 18px;
     }
 
-    .summary-card .label {
-      color: #b3d5c8;
-      font-size: 14px;
-    }
-
-    .networth {
-      margin: 8px 0 0;
-      font-size: clamp(35px, 5vw, 52px);
-      font-weight: 750;
-      letter-spacing: -.06em;
-      line-height: 1.1;
-      overflow-wrap: anywhere;
-    }
-
-    .summary-bottom {
+    .actions {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 26px;
-      color: #c7e2d8;
+      gap: 8px;
+    }
+
+    main { padding: 30px 0 75px; }
+
+    .nav {
+      display: flex;
+      gap: 5px;
+      width: max-content;
+      max-width: 100%;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+      overflow-x: auto;
+    }
+
+    .nav button {
+      min-height: 38px;
+      padding: 7px 15px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .nav button.active {
+      background: var(--green-soft);
+      color: var(--green-dark);
+    }
+
+    .view { display: grid; gap: 17px; }
+
+    .overview {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 186px;
+      background:
+        radial-gradient(circle at 90% 0%, #39967355, transparent 38%),
+        linear-gradient(125deg, #184d3c, #102e29);
+      color: white;
+    }
+
+    .hero .muted { color: #c8e1d4; }
+
+    .big {
+      margin-top: 10px;
+      font-size: clamp(33px, 4vw, 47px);
+      font-weight: 760;
+      letter-spacing: -.065em;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .metric {
+      margin: 14px 0 5px;
+      font-size: clamp(25px, 3vw, 32px);
+      font-weight: 740;
+      letter-spacing: -.045em;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-sub { color: var(--muted); font-size: 12px; }
+
+    .historical-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid #ebd9b9;
+      border-radius: 12px;
+      background: #fff9ec;
+    }
+
+    .dashboard-controls {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .asof-control { width: 180px; }
+
+    .dashboard-lower {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+    }
+
+    .chart-box { height: 280px; margin-top: 18px; }
+
+    .range {
+      display: inline-flex;
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .range button {
+      padding: 5px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .range button.active {
+      background: var(--green-soft);
+      color: var(--green-dark);
+    }
+
+    .empty {
+      padding: 24px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .breakdown-list { display: grid; gap: 11px; margin-top: 18px; }
+
+    .breakdown-row, .change-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
       font-size: 13px;
     }
 
-    .change-pill {
-      padding: 5px 9px;
-      border-radius: 7px;
-      background: rgba(255, 255, 255, .12);
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .snapshot-card { padding: 25px; }
-
-    .card-title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -.025em;
-    }
-
-    .snapshot-list {
-      display: grid;
-      gap: 13px;
-      margin-top: 19px;
-    }
-
-    .snapshot-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 14px;
-    }
-
-    .snapshot-name {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      color: var(--muted);
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      flex: none;
-      border-radius: 50%;
-      background: var(--green);
-    }
-
-    .dot.debt { background: var(--red); }
-    .dot.stocks { background: #6885d3; }
-    .dot.real_estate { background: #d3a765; }
-    .dot.crypto { background: #a77acd; }
-    .dot.other { background: #98a5ae; }
-
-    .snapshot-value {
-      font-weight: 650;
-      text-align: right;
-      white-space: nowrap;
-    }
+    .breakdown-row strong, .change-row strong { white-space: nowrap; }
+    .change-row { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .change-row:last-child { border: 0; }
 
     .negative { color: var(--red); }
 
-    .chart-card,
-    .history-card,
-    .add-card {
-      padding: 25px;
-      margin-bottom: 18px;
-    }
-
-    .chart-card .section-header,
-    .history-card .section-header {
-      margin-bottom: 20px;
-    }
-
-    .chart-wrap {
-      position: relative;
-      height: 280px;
-    }
-
-    .empty-chart {
-      display: grid;
-      place-items: center;
-      height: 230px;
-      padding: 20px;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      color: var(--muted);
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .assets-card {
-      overflow: hidden;
-      margin-bottom: 18px;
-    }
-
-    .assets-card .section-header {
-      padding: 25px 25px 18px;
-    }
-
-    .table-scroll { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      white-space: nowrap;
-    }
-
-    th {
-      padding: 11px 20px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: #fafcfb;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 750;
-      letter-spacing: .07em;
-      text-align: left;
-      text-transform: uppercase;
-    }
-
-    td {
-      padding: 15px 20px;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-    }
-
-    tr:last-child td { border-bottom: 0; }
-    .align-right { text-align: right; }
-    .asset-name { font-weight: 650; }
-
-    .category-badge {
-      display: inline-flex;
-      padding: 5px 9px;
-      border-radius: 7px;
-      background: #f2f5f3;
-      color: #52645c;
+    .notice {
+      padding: 11px 13px;
+      border-radius: 9px;
+      background: var(--amber-soft);
+      color: #795017;
       font-size: 12px;
-      font-weight: 600;
     }
 
-    .row-controls {
+    .notice.green {
+      background: var(--green-soft);
+      color: var(--green-dark);
+    }
+
+    .item-list { margin-top: 18px; }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 2px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .item-row:last-child { border-bottom: 0; }
+    .item-row.sort-ghost { background: var(--green-soft); }
+
+    .reorder {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 2px;
     }
 
-    .row-controls .value-field { width: 115px; }
-    .row-controls .date-field { width: 146px; }
+    .drag {
+      width: 30px;
+      height: 36px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #83948a;
+      cursor: grab;
+      touch-action: none;
+      font-size: 20px;
+    }
 
-    .row-controls .field {
-      min-height: 36px;
-      padding: 5px 8px;
+    .drag:active { cursor: grabbing; }
+
+    .move {
+      width: 24px;
+      height: 30px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .move:disabled { opacity: .25; cursor: not-allowed; }
+
+    .item-primary { min-width: 0; }
+    .item-primary strong { display: block; font-size: 14px; }
+    .item-primary .muted { font-size: 12px; }
+
+    .item-value {
+      font-size: 16px;
+      font-weight: 740;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 3px 8px;
+      border-radius: 7px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.warning {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .item-actions { display: flex; gap: 6px; }
+
+    .check-progress {
+      height: 9px;
+      margin: 18px 0 7px;
+      border-radius: 99px;
+      background: #edf1ed;
+      overflow: hidden;
+    }
+
+    .check-progress > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width .2s;
+    }
+
+    .review-item {
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .review-item:last-child { border-bottom: 0; }
+
+    .review-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .review-fields {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .review-fields > div { width: min(190px, 100%); }
+    .review-fields .button { align-self: end; }
+
+    .details-toggle {
+      width: 100%;
+      padding: 13px 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: transparent;
+      color: var(--green);
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+      margin-top: 18px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 550;
+    }
+
+    .check-label input {
+      width: 17px;
+      height: 17px;
+      flex: none;
+      margin: 2px 0 0;
+    }
+
+    .field-error {
+      min-height: 18px;
+      margin-top: 4px;
+      color: var(--red);
+      font-size: 12px;
+    }
+
+    .dialog-error {
+      min-height: 20px;
+      margin-top: 14px;
+      color: var(--red);
       font-size: 13px;
     }
 
-    .table-empty {
-      padding: 35px 20px;
+    dialog {
+      width: min(560px, calc(100% - 24px));
+      max-height: min(88vh, 900px);
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 25px 90px #102d2944;
+      overflow: auto;
+    }
+
+    dialog::backdrop {
+      background: #132820a8;
+      backdrop-filter: blur(3px);
+    }
+
+    .dialog-content { padding: 25px; }
+    .dialog-header { display: flex; justify-content: space-between; gap: 15px; }
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 19px;
+    }
+
+    .icon-button {
+      width: 35px;
+      height: 35px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: white;
       color: var(--muted);
-      text-align: center;
-      white-space: normal;
+      font-size: 21px;
+      line-height: 1;
     }
 
-    .add-grid {
+    .type-grid {
       display: grid;
-      grid-template-columns: 2fr 1.2fr 1.2fr auto;
-      align-items: end;
-      gap: 14px;
-      margin-top: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-top: 18px;
     }
 
-    .add-grid .form-group { margin: 0; }
-    .add-card .hint { margin: 14px 0 0; }
-
-    .history-filter { width: min(240px, 100%); }
-
-    @media (max-width: 800px) {
-      .overview-grid { grid-template-columns: 1fr; }
-      .add-grid { grid-template-columns: 1fr 1fr; }
-      .add-grid .name-group { grid-column: 1 / -1; }
+    .type-option {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      text-align: left;
     }
 
-    @media (max-width: 600px) {
-      .container { width: min(100% - 28px, 1160px); }
-      .header-inner { min-height: 66px; }
+    .type-option:hover, .type-option.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .type-option strong { display: block; }
+    .type-option span { color: var(--muted); font-size: 12px; }
+
+    .history-list { margin-top: 14px; }
+    .history-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .history-row:last-child { border: 0; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 100;
+      width: min(380px, calc(100% - 36px));
+      padding: 13px 16px;
+      border-radius: 12px;
+      background: #173b2d;
+      color: white;
+      box-shadow: 0 15px 40px #102d2940;
+      font-size: 13px;
+    }
+
+    .toast.error { background: #823344; }
+
+    .auth-card {
+      width: min(440px, calc(100% - 32px));
+      margin: 9vh auto;
+    }
+
+    .auth-card .form-grid { grid-template-columns: 1fr; }
+
+    @media (max-width: 900px) {
+      .overview { grid-template-columns: 1fr 1fr; }
+      .hero { grid-column: 1 / -1; }
+      .dashboard-lower { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 650px) {
       .header-email { display: none; }
-      main.dashboard { padding-top: 28px; }
-      .page-heading { flex-direction: column; }
-      .summary-card { min-height: 190px; }
-      .chart-card, .history-card, .snapshot-card, .add-card {
-        padding: 20px;
+      main { padding-top: 22px; }
+      .section-heading, .dashboard-controls { flex-direction: column; }
+      .overview { grid-template-columns: 1fr; }
+      .hero { grid-column: auto; }
+      .asof-control { width: 100%; }
+      .item-row {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 10px;
       }
-      .assets-card .section-header { padding: 20px; }
-      .chart-wrap { height: 230px; }
-      .add-grid { grid-template-columns: 1fr; }
-      .add-grid .name-group { grid-column: auto; }
-      .history-card .section-header { flex-direction: column; }
-      .auth-card { padding: 27px 22px; }
-      .auth-buttons { flex-direction: column; }
+      .item-value { grid-column: 3; grid-row: 1; font-size: 14px; }
+      .item-actions {
+        grid-column: 2 / -1;
+        justify-content: flex-start;
+      }
+      .reorder { align-self: start; }
+      .move { display: none; }
+      .form-grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      .dialog-content { padding: 19px; }
+      .type-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
     }
   </style>
 </head>
 
 <body>
   <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="#" aria-label="Wealth Tracker home">
-        <span class="brand-icon" aria-hidden="true">↗</span>
-        <span>Wealth Tracker</span>
+    <div class="shell header-inner">
+      <a class="brand" href="#dashboard" id="brand">
+        <span class="brand-mark" aria-hidden="true">↗</span>
+        Wealth Tracker
       </a>
 
-      <div id="header-actions" class="header-actions hidden">
+      <div id="header-right" class="header-right hidden">
         <span id="header-email" class="header-email"></span>
-        <button id="logout-btn" class="button button-secondary button-small"
-                type="button">Log out</button>
+        <button id="logout" class="button secondary small" type="button">
+          Log out
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Login / signup -->
-  <section id="auth-view" class="auth-page hidden">
-    <div class="auth-card">
-      <div class="eyebrow">A clearer picture of your money</div>
-      <h1>Know where you stand.</h1>
-      <p>Track your assets, debts, and net worth over time.</p>
+  <section id="auth-view" class="card auth-card hidden">
+    <div class="eyebrow">Simple wealth tracking</div>
+    <h1>Know where you stand.</h1>
+    <p class="muted">
+      Your assets, debts, and progress in one calm place.
+    </p>
 
-      <div class="form-group">
+    <div class="form-grid">
+      <div>
         <label for="email">Email address</label>
         <input id="email" class="field" type="email"
                autocomplete="email" placeholder="you@example.com">
       </div>
 
-      <div class="form-group">
+      <div>
         <label for="password">Password</label>
         <input id="password" class="field" type="password"
                autocomplete="current-password"
                placeholder="At least 6 characters">
       </div>
-
-      <div class="auth-buttons">
-        <button id="login-btn" class="button" type="button">Log in</button>
-        <button id="signup-btn" class="button button-secondary" type="button">
-          Create account
-        </button>
-      </div>
-
-      <p id="auth-msg" class="message" role="status"></p>
     </div>
+
+    <div class="actions" style="margin-top:20px">
+      <button id="login" class="button" type="button">Log in</button>
+      <button id="signup" class="button secondary" type="button">
+        Create account
+      </button>
+    </div>
+
+    <p id="auth-error" class="dialog-error" role="status"></p>
   </section>
 
-  <!-- Dashboard -->
-  <main id="app-view" class="container dashboard hidden">
-    <div class="page-heading">
+  <main id="app" class="shell stack hidden">
+    <div class="section-heading">
       <div>
-        <div class="eyebrow">Your dashboard</div>
-        <h1>Your wealth, at a glance.</h1>
-        <p>Manually update values whenever you like.</p>
+        <div class="eyebrow">Your finances</div>
+        <h1>Your wealth, clearly.</h1>
+        <p class="muted">
+          All amounts in euros. Values are entered manually.
+        </p>
       </div>
 
-      <div class="heading-actions">
-        <button id="export-btn" class="button button-secondary" type="button">
+      <div class="actions">
+        <button id="export" class="button secondary" type="button">
           ↓ Export CSV
         </button>
-        <a class="button" href="#add-asset">+ Add asset</a>
+        <button id="open-add" class="button" type="button">
+          + Add item
+        </button>
       </div>
     </div>
 
-    <p id="app-msg" class="message" role="status"></p>
+    <nav class="nav" aria-label="Main navigation">
+      <button data-view="dashboard" type="button">Dashboard</button>
+      <button data-view="items" type="button">Items</button>
+      <button data-view="checkin" type="button">Check-in</button>
+    </nav>
 
-    <section class="overview-grid" aria-label="Overview">
-      <div class="card summary-card">
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view hidden" aria-label="Dashboard">
+      <div id="historical-banner" class="historical-banner hidden">
         <div>
-          <div class="label">Total net worth</div>
-          <div id="networth" class="networth">—</div>
+          <strong id="historical-title"></strong>
+          <p class="small">
+            Historical estimate. Last known values are carried forward;
+            today’s check-in is a separate view.
+          </p>
         </div>
-        <div class="summary-bottom">
-          <span id="change-pill" class="change-pill hidden"></span>
-          <span id="change-description">
-            Add your first asset to get started
-          </span>
-        </div>
+
+        <button id="return-today" class="button secondary small"
+                type="button">Return to today</button>
       </div>
 
-      <div class="card snapshot-card">
-        <h2 class="card-title">Breakdown</h2>
-        <div id="breakdown" class="snapshot-list">
-          <span class="hint">Your categories will appear here.</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="card chart-card" aria-labelledby="progress-title">
-      <div class="section-header">
+      <div class="dashboard-controls">
         <div>
-          <h2 id="progress-title" class="card-title">
-            Net worth over time
-          </h2>
-          <p>Each item's last entered value is carried forward.</p>
+          <div class="eyebrow">Overview</div>
+          <h2>Where you stand</h2>
+        </div>
+
+        <div class="asof-control">
+          <label for="asof">View as of</label>
+          <input id="asof" class="field" type="date">
         </div>
       </div>
 
-      <div id="chart-wrap" class="chart-wrap hidden">
-        <canvas id="chart" aria-label="Net worth over time chart"></canvas>
-      </div>
-
-      <div id="chart-empty" class="empty-chart">
-        Add values on at least two different dates to see your progress.
-      </div>
-    </section>
-
-    <section id="assets" class="card assets-card"
-             aria-labelledby="assets-title">
-      <div class="section-header">
-        <div>
-          <h2 id="assets-title" class="card-title">
-            Your assets &amp; debts
-          </h2>
-          <p>Enter a new value and date to update an item.</p>
+      <div class="overview">
+        <div class="card hero">
+          <div>
+            <span class="muted">Net worth</span>
+            <div id="networth" class="big">—</div>
+          </div>
+          <p id="networth-caption" class="muted small"></p>
         </div>
-        <span id="asset-count" class="hint">0 items</span>
-      </div>
 
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Category</th>
-              <th class="align-right">Latest value</th>
-              <th>Update value</th>
-              <th aria-label="Actions"></th>
-            </tr>
-          </thead>
-          <tbody id="asset-rows">
-            <tr>
-              <td colspan="5" class="table-empty">Loading...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        <div class="card">
+          <h2>Accessible balance</h2>
+          <div id="accessible" class="metric">—</div>
+          <p class="metric-sub">
+            Items you mark accessible, less debts you choose to deduct.
+            Property and locked deposits are excluded.
+          </p>
+        </div>
 
-    <section id="add-asset" class="card add-card"
-             aria-labelledby="add-title">
-      <h2 id="add-title" class="card-title">
-        Add an asset or debt
-      </h2>
-
-      <form id="add-form">
-        <div class="add-grid">
-          <div class="form-group name-group">
-            <label for="new-name">Name</label>
-            <input id="new-name" class="field"
-                   placeholder="e.g. Checking account"
-                   maxlength="100" required>
-          </div>
-
-          <div class="form-group">
-            <label for="new-cat">Category</label>
-            <select id="new-cat" class="field"></select>
-          </div>
-
-          <div class="form-group">
-            <label for="new-value">Current value (€)</label>
-            <input id="new-value" class="field" type="number"
-                   min="0" step="0.01" placeholder="Optional">
-          </div>
-
-          <button id="add-btn" class="button" type="submit">
-            Add item
+        <div class="card">
+          <h2>Data freshness</h2>
+          <div id="freshness-number" class="metric">—</div>
+          <p id="freshness-description" class="metric-sub"></p>
+          <button id="go-review" class="button ghost small"
+                  type="button" style="margin-top:9px">
+            Review items →
           </button>
         </div>
-      </form>
-
-      <p class="hint">
-        For a mortgage or loan, choose <strong>Debt</strong> and enter
-        the amount owed as a positive number. It will be subtracted.
-      </p>
-    </section>
-
-    <section class="card history-card" aria-labelledby="history-title">
-      <div class="section-header">
-        <div>
-          <h2 id="history-title" class="card-title">
-            Value history
-          </h2>
-          <p>Correct or remove a previously entered value.</p>
-        </div>
-
-        <div>
-          <label for="history-asset">Show entries for</label>
-          <select id="history-asset"
-                  class="field history-filter"></select>
-        </div>
       </div>
 
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Value (€)</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="history-rows">
-            <tr>
-              <td colspan="3" class="table-empty">
-                Choose an item to view its history.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <p class="muted small">
+        Accessible balance is an estimate, not a bank balance or
+        a guaranteed amount available to spend.
+      </p>
+
+      <div class="dashboard-lower">
+        <section class="card">
+          <div class="section-heading">
+            <div>
+              <h2>Net worth over time</h2>
+              <p id="chart-summary" class="muted small"></p>
+            </div>
+
+            <div id="chart-ranges" class="range" aria-label="Chart range">
+              <button data-range="3m" type="button">3M</button>
+              <button data-range="1y" type="button">1Y</button>
+              <button data-range="all" type="button">All</button>
+            </div>
+          </div>
+
+          <div id="chart-box" class="chart-box hidden">
+            <canvas id="chart" aria-label="Net worth chart"></canvas>
+          </div>
+
+          <div id="chart-empty" class="empty" style="margin-top:17px">
+            Add values on at least two dates to see your progress.
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Where the change came from</h2>
+          <p id="changes-period" class="muted small"></p>
+          <div id="changes-content" style="margin-top:13px"></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>By category</h2>
+        <p class="muted small">
+          Property shows your share minus your mortgage.
+          Debts show as negative amounts.
+        </p>
+        <div id="breakdown" class="breakdown-list"></div>
+      </section>
+    </section>
+
+    <!-- ITEMS -->
+    <section id="view-items" class="view hidden" aria-label="Items">
+      <div class="card">
+        <div class="section-heading">
+          <div>
+            <h2>Assets &amp; debts</h2>
+            <p class="muted small">
+              Your current items. Drag the handle to reorder;
+              up/down buttons are also available.
+            </p>
+          </div>
+          <span id="item-count" class="muted small"></span>
+        </div>
+
+        <div id="item-list" class="item-list"></div>
+      </div>
+
+      <section class="card">
+        <button id="archived-toggle" class="details-toggle"
+                type="button" aria-expanded="false">
+          Archived items (<span id="archived-count">0</span>) ↓
+        </button>
+        <div id="archived-list" class="hidden"></div>
+      </section>
+    </section>
+
+    <!-- CHECK-IN -->
+    <section id="view-checkin" class="view hidden" aria-label="Monthly check-in">
+      <div class="card">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Monthly routine</div>
+            <h2>Review your numbers</h2>
+            <p class="muted small">
+              Confirm unchanged amounts or enter a new value.
+              This check-in always saves values for today.
+            </p>
+          </div>
+          <strong id="checkin-count"></strong>
+        </div>
+
+        <div class="check-progress"
+             role="progressbar"
+             aria-label="Monthly check-in progress"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             aria-valuenow="0">
+          <span id="checkin-progress"></span>
+        </div>
+
+        <div id="checkin-complete" class="notice green hidden"
+             style="margin-top:18px">
+          All active items have been reviewed this month.
+        </div>
+
+        <div id="pending-list"></div>
+
+        <button id="reviewed-toggle" class="details-toggle hidden"
+                type="button" aria-expanded="false">
+          Already reviewed this month (<span id="reviewed-count">0</span>) ↓
+        </button>
+
+        <div id="reviewed-list" class="hidden"></div>
       </div>
     </section>
   </main>
 
+  <dialog id="app-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div>
+          <div id="dialog-eyebrow" class="eyebrow"></div>
+          <h2 id="dialog-title"></h2>
+          <p id="dialog-description" class="muted small"></p>
+        </div>
+        <button id="close-dialog" class="icon-button"
+                type="button" aria-label="Close dialog">×</button>
+      </div>
+
+      <div id="dialog-body"></div>
+      <p id="dialog-error" class="dialog-error" role="alert"></p>
+      <div id="dialog-footer" class="dialog-footer"></div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast hidden" role="status"
+       aria-live="polite"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 
   <script>
-    const SUPABASE_URL =
-      'https://ipdvmhinxjwcxuwrwiad.supabase.co';
-
-    const SUPABASE_KEY =
-      'sb_publishable_sBDt7t7eY6xN5FFMlyi7RA_vUFN1U5K';
-
-    const CURRENCY = 'EUR';
+    'use strict';
 
     const sb = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+      'https://ipdvmhinxjwcxuwrwiad.supabase.co',
+      'sb_publishable_sBDt7t7eY6xN5FFMlyi7RA_vUFN1U5K'
     );
 
-    const CATEGORIES = {
-      cash: 'Cash',
-      stocks: 'Stocks',
-      crypto: 'Crypto',
-      real_estate: 'Real estate',
-      other: 'Other',
-      debt: 'Debt'
+    const TYPES = {
+      cash: ['Cash', 'Current and savings accounts'],
+      stocks: ['Investments', 'Stocks, ETFs and funds'],
+      real_estate: ['Property', 'Your share minus your mortgage'],
+      fixed_deposit: ['Fixed deposit', 'Money locked until a set date'],
+      debt: ['Debt', 'Loans and amounts you owe'],
+      crypto: ['Crypto', 'Manually valued holdings'],
+      other: ['Other', 'Another asset or custom category']
     };
-
-    let assets = [];
-    let valuations = [];
-    let chart = null;
-    let activeUserId = null;
-    let loadVersion = 0;
 
     const $ = id => document.getElementById(id);
 
-    const fmt = value => Number(value).toLocaleString(
-      undefined,
-      {
-        style: 'currency',
-        currency: CURRENCY
-      }
+    const euro = value => Number(value).toLocaleString(undefined, {
+      style: 'currency',
+      currency: 'EUR'
+    });
+
+    const escapeHtml = value => String(value ?? '').replace(
+      /[&<>"']/g,
+      character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]
     );
 
     function today() {
       const date = new Date();
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
 
-      return `${year}-${month}-${day}`;
+      return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+      ].join('-');
     }
 
-    function previousMonthEnd() {
-      const date = new Date();
-      const end = new Date(
-        date.getFullYear(),
-        date.getMonth(),
+    function previousMonthEnd(date) {
+      const [year, month] = date.split('-').map(Number);
+      const previous = new Date(year, month - 1, 0);
+
+      return [
+        previous.getFullYear(),
+        String(previous.getMonth() + 1).padStart(2, '0'),
+        String(previous.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    function monthStart(date) {
+      return `${date.slice(0, 7)}-01`;
+    }
+
+    function parseAmount(raw) {
+      let text = String(raw ?? '')
+        .replace(/[€\s\u00a0\u202f]/g, '');
+
+      if (!text) return null;
+
+      const lastComma = text.lastIndexOf(',');
+      const lastDot = text.lastIndexOf('.');
+
+      if (lastComma >= 0 && lastDot >= 0) {
+        const decimal = lastComma > lastDot ? ',' : '.';
+        const grouping = decimal === ',' ? '.' : ',';
+
+        text = text.replaceAll(grouping, '');
+        text = text.replace(decimal, '.');
+      } else if (lastComma >= 0) {
+        text = text.replace(',', '.');
+      } else if ((text.match(/\./g) ?? []).length > 1) {
+        return null;
+      }
+
+      if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+
+      const number = Number(text);
+
+      return Number.isFinite(number) &&
+        number >= 0 &&
+        number <= 999999999999.99
+          ? number
+          : null;
+    }
+
+    function parsePercent(raw) {
+      const text = String(raw ?? '').trim().replace(',', '.');
+
+      if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+
+      const number = Number(text);
+
+      return number >= 0 && number <= 100
+        ? number
+        : null;
+    }
+
+    function displayInput(value) {
+      return value == null
+        ? ''
+        : String(value).replace('.', ',');
+    }
+
+    function showToast(text, error = false) {
+      const toast = $('toast');
+      toast.textContent = text;
+      toast.className = `toast${error ? ' error' : ''}`;
+
+      clearTimeout(showToast.timer);
+
+      showToast.timer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4500);
+    }
+
+    let assets = [];
+    let valuations = [];
+    let categories = [];
+    let ownershipChanges = [];
+
+    let currentUserId = null;
+    let loadVersion = 0;
+    let activeView = 'dashboard';
+    let chartRange = '1y';
+    let chart = null;
+    let sortable = null;
+    let savingOrder = false;
+    let archivedOpen = false;
+    let reviewedOpen = false;
+
+    $('asof').value = today();
+    $('asof').max = today();
+
+    function categoryName(asset) {
+      if (asset.category !== 'custom') {
+        return TYPES[asset.category]?.[0] ?? 'Other';
+      }
+
+      return categories.find(
+        category => category.id === asset.custom_category_id
+      )?.name ?? 'Custom category';
+    }
+
+    function isActiveOn(asset, date) {
+      return !asset.archived_on || date < asset.archived_on;
+    }
+
+    function shareOn(asset, date) {
+      let percentage = Number(asset.ownership_percent ?? 100);
+
+      for (const change of ownershipChanges) {
+        if (
+          change.asset_id === asset.id &&
+          change.effective_date <= date
+        ) {
+          percentage = Number(change.ownership_percent);
+        }
+      }
+
+      return percentage;
+    }
+
+    function latestOn(date) {
+      const result = new Map();
+
+      for (const entry of valuations) {
+        if (entry.date > date) break;
+        result.set(entry.asset_id, entry);
+      }
+
+      return result;
+    }
+
+    function contribution(asset, entry, date) {
+      if (!entry || !isActiveOn(asset, date)) return 0;
+
+      const value = Number(entry.value);
+
+      if (asset.category === 'debt') return -value;
+
+      if (asset.category === 'real_estate') {
+        return value * shareOn(asset, date) / 100 -
+          Number(entry.mortgage_value ?? 0);
+      }
+
+      return value;
+    }
+
+    function netWorthOn(date) {
+      const latest = latestOn(date);
+
+      return assets.reduce(
+        (sum, asset) =>
+          sum + contribution(asset, latest.get(asset.id), date),
         0
       );
-
-      const year = end.getFullYear();
-      const month = String(end.getMonth() + 1).padStart(2, '0');
-      const day = String(end.getDate()).padStart(2, '0');
-
-      return `${year}-${month}-${day}`;
     }
 
-    function escapeHtml(value) {
-      return String(value).replace(
-        /[&<>"']/g,
-        character => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        })[character]
+    function accessibleOn(date) {
+      const latest = latestOn(date);
+
+      return assets.reduce((sum, asset) => {
+        if (!isActiveOn(asset, date)) return sum;
+
+        const entry = latest.get(asset.id);
+
+        if (!entry) return sum;
+
+        if (asset.category === 'debt') {
+          return asset.subtract_debt_from_accessible
+            ? sum + contribution(asset, entry, date)
+            : sum;
+        }
+
+        if (asset.category === 'real_estate') return sum;
+
+        if (asset.category === 'fixed_deposit') {
+          return asset.maturity_date &&
+            asset.maturity_date <= date
+              ? sum + contribution(asset, entry, date)
+              : sum;
+        }
+
+        return asset.accessible
+          ? sum + contribution(asset, entry, date)
+          : sum;
+      }, 0);
+    }
+
+    function freshnessLimit(asset) {
+      if (asset.category === 'real_estate') return 365;
+
+      if (
+        asset.category === 'fixed_deposit' ||
+        asset.category === 'other' ||
+        asset.category === 'custom'
+      ) {
+        return 90;
+      }
+
+      return 30;
+    }
+
+    function needsReview(asset, entry, date) {
+      if (!entry) return true;
+
+      const age = Math.floor(
+        (
+          Date.parse(`${date}T12:00:00Z`) -
+          Date.parse(`${entry.date}T12:00:00Z`)
+        ) / 86400000
+      );
+
+      return age > freshnessLimit(asset);
+    }
+
+    function sortAssets() {
+      assets.sort((a, b) =>
+        Number(a.sort_order ?? 999999) -
+          Number(b.sort_order ?? 999999) ||
+        String(a.created_at ?? '').localeCompare(
+          String(b.created_at ?? '')
+        ) ||
+        a.id.localeCompare(b.id)
       );
     }
 
-    function setMessage(elementId, text, type = '') {
-      const element = $(elementId);
-      element.textContent = text;
-      element.className = `message ${type}`.trim();
+    async function fetchAll(table, orderColumns) {
+      const rows = [];
+      const pageSize = 500;
+
+      for (let start = 0; ; start += pageSize) {
+        let query = sb.from(table).select('*');
+
+        for (const column of orderColumns) {
+          query = query.order(column);
+        }
+
+        const { data, error } = await query.range(
+          start,
+          start + pageSize - 1
+        );
+
+        if (error) throw error;
+
+        rows.push(...data);
+
+        if (data.length < pageSize) return rows;
+      }
     }
 
-    function validAmount(value) {
-      return value !== '' &&
-        Number.isFinite(Number(value)) &&
-        Number(value) >= 0;
+    async function loadData() {
+      const version = ++loadVersion;
+      const account = currentUserId;
+
+      if (!account) return false;
+
+      try {
+        const [newAssets, newValuations, newCategories, newChanges] =
+          await Promise.all([
+            fetchAll('assets', ['created_at', 'id']),
+            fetchAll('valuations', ['date', 'id']),
+            fetchAll('custom_categories', ['name', 'id']),
+            fetchAll(
+              'property_ownership_changes',
+              ['effective_date', 'id']
+            )
+          ]);
+
+        if (version !== loadVersion || account !== currentUserId) {
+          return false;
+        }
+
+        assets = newAssets;
+        valuations = newValuations;
+        categories = newCategories;
+        ownershipChanges = newChanges;
+
+        sortAssets();
+        renderActiveView();
+        return true;
+      } catch (error) {
+        if (version === loadVersion && account === currentUserId) {
+          showToast(`Could not load data: ${error.message}`, true);
+        }
+
+        return false;
+      }
     }
 
-    function signedValue(asset, value) {
-      return asset.category === 'debt' ? -value : value;
-    }
-
-    $('new-cat').innerHTML = Object.entries(CATEGORIES)
-      .map(([key, label]) =>
-        `<option value="${key}">${label}</option>`
-      )
-      .join('');
-
-    // Authentication
     sb.auth.onAuthStateChange((_event, session) => {
-      const userId = session?.user?.id ?? null;
+      const newUserId = session?.user?.id ?? null;
 
-      $('auth-view').classList.toggle(
-        'hidden',
-        Boolean(userId)
-      );
+      $('auth-view').classList.toggle('hidden', Boolean(newUserId));
+      $('app').classList.toggle('hidden', !newUserId);
+      $('header-right').classList.toggle('hidden', !newUserId);
 
-      $('app-view').classList.toggle(
-        'hidden',
-        !userId
-      );
-
-      $('header-actions').classList.toggle(
-        'hidden',
-        !userId
-      );
-
-      if (!userId) {
-        activeUserId = null;
+      if (!newUserId) {
+        currentUserId = null;
         loadVersion++;
+
         assets = [];
         valuations = [];
+        categories = [];
+        ownershipChanges = [];
 
         if (chart) {
           chart.destroy();
           chart = null;
         }
 
+        if ($('app-dialog').open) $('app-dialog').close();
+
         return;
       }
 
-      $('header-email').textContent =
-        session.user.email ?? '';
+      $('header-email').textContent = session.user.email ?? '';
 
-      if (userId !== activeUserId) {
-        activeUserId = userId;
+      if (newUserId !== currentUserId) {
+        currentUserId = newUserId;
         setTimeout(loadData, 0);
       }
     });
@@ -866,1116 +1328,1936 @@
       const email = $('email').value.trim();
       const password = $('password').value;
 
+      $('auth-error').textContent = '';
+
       if (!email || !password) {
-        setMessage(
-          'auth-msg',
-          'Enter your email and password.',
-          'error'
-        );
+        $('auth-error').textContent =
+          'Enter your email and password.';
         return;
       }
 
-      $('login-btn').disabled = true;
-      $('signup-btn').disabled = true;
-      setMessage('auth-msg', '');
+      $('login').disabled = true;
+      $('signup').disabled = true;
 
       try {
         const result = mode === 'signup'
           ? await sb.auth.signUp({ email, password })
-          : await sb.auth.signInWithPassword({
-              email,
-              password
-            });
+          : await sb.auth.signInWithPassword({ email, password });
 
-        if (result.error) {
-          setMessage(
-            'auth-msg',
-            result.error.message,
-            'error'
-          );
-        } else if (
-          mode === 'signup' &&
-          !result.data.session
-        ) {
-          setMessage(
-            'auth-msg',
-            'Check your email to confirm your account, then log in.',
-            'success'
-          );
+        if (result.error) throw result.error;
+
+        if (mode === 'signup' && !result.data.session) {
+          $('auth-error').style.color = 'var(--green)';
+          $('auth-error').textContent =
+            'Check your email to confirm your account.';
         }
       } catch (error) {
-        setMessage(
-          'auth-msg',
-          error.message,
-          'error'
-        );
+        $('auth-error').style.color = 'var(--red)';
+        $('auth-error').textContent = error.message;
       } finally {
-        $('login-btn').disabled = false;
-        $('signup-btn').disabled = false;
+        $('login').disabled = false;
+        $('signup').disabled = false;
       }
     }
 
-    $('login-btn').addEventListener(
-      'click',
-      () => authenticate('login')
-    );
+    $('login').onclick = () => authenticate('login');
+    $('signup').onclick = () => authenticate('signup');
 
-    $('signup-btn').addEventListener(
-      'click',
-      () => authenticate('signup')
-    );
+    $('password').onkeydown = event => {
+      if (event.key === 'Enter') authenticate('login');
+    };
 
-    $('password').addEventListener(
-      'keydown',
-      event => {
-        if (event.key === 'Enter') {
-          authenticate('login');
-        }
-      }
-    );
+    $('logout').onclick = async () => {
+      const { error } = await sb.auth.signOut();
 
-    $('logout-btn').addEventListener(
-      'click',
-      async () => {
-        const { error } = await sb.auth.signOut();
+      if (error) showToast(error.message, true);
+    };
 
-        if (error) {
-          setMessage(
-            'app-msg',
-            error.message,
-            'error'
-          );
-        }
-      }
-    );
-
-    // Load data from Supabase.
-    async function loadData() {
-      const version = ++loadVersion;
-      const userId = activeUserId;
-
-      if (!userId) return;
-
-      setMessage('app-msg', 'Loading your data...');
-
-      const [assetResult, valuationResult] =
-        await Promise.all([
-          sb.from('assets')
-            .select('*')
-            .order('created_at'),
-
-          sb.from('valuations')
-            .select('*')
-            .order('date')
-        ]);
-
-      if (
-        version !== loadVersion ||
-        userId !== activeUserId
-      ) {
-        return;
+    function navigate(view) {
+      if (!['dashboard', 'items', 'checkin'].includes(view)) {
+        view = 'dashboard';
       }
 
-      if (
-        assetResult.error ||
-        valuationResult.error
-      ) {
-        setMessage(
-          'app-msg',
-          (
-            assetResult.error ||
-            valuationResult.error
-          ).message,
-          'error'
-        );
-        return;
+      activeView = view;
+
+      for (const button of document.querySelectorAll('.nav button')) {
+        const selected = button.dataset.view === view;
+
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-current', selected ? 'page' : 'false');
       }
 
-      assets = assetResult.data;
-      valuations = valuationResult.data;
+      for (const name of ['dashboard', 'items', 'checkin']) {
+        $(`view-${name}`).classList.toggle('hidden', name !== view);
+      }
 
-      setMessage('app-msg', '');
-      render();
+      renderActiveView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function valuationsThrough(date) {
-      return valuations.filter(
-        valuation => valuation.date <= date
+    document.querySelector('.nav').onclick = event => {
+      const button = event.target.closest('[data-view]');
+
+      if (button) navigate(button.dataset.view);
+    };
+
+    $('brand').onclick = event => {
+      event.preventDefault();
+
+      if (currentUserId) navigate('dashboard');
+    };
+
+    $('go-review').onclick = () => navigate('checkin');
+    $('open-add').onclick = () => openAddDialog();
+
+    function renderActiveView() {
+      if (activeView === 'dashboard') renderDashboard();
+      if (activeView === 'items') renderItems();
+      if (activeView === 'checkin') renderCheckin();
+    }
+
+    function renderDashboard() {
+      const selectedDate = $('asof').value || today();
+      const historical = selectedDate !== today();
+      const latest = latestOn(selectedDate);
+      const active = assets.filter(
+        asset => isActiveOn(asset, selectedDate)
       );
-    }
 
-    function latestValuesAsOf(date) {
-      const latest = {};
+      $('historical-banner').classList.toggle('hidden', !historical);
 
-      // Supabase returns valuations ordered by date.
-      // Later values overwrite earlier values.
-      for (const valuation of valuationsThrough(date)) {
-        latest[valuation.asset_id] =
-          Number(valuation.value);
-      }
+      $('historical-title').textContent =
+        `Viewing ${selectedDate} · Historical view`;
 
-      return latest;
-    }
+      $('networth').textContent = euro(netWorthOn(selectedDate));
+      $('accessible').textContent = euro(accessibleOn(selectedDate));
 
-    function netWorthFromValues(values) {
-      return assets.reduce(
-        (total, asset) =>
-          total + signedValue(
-            asset,
-            values[asset.id] ?? 0
-          ),
-        0
-      );
-    }
+      $('networth-caption').textContent =
+        `As of ${selectedDate} · last known values carried forward`;
 
-    function timeline() {
-      const visibleValuations =
-        valuationsThrough(today());
-
-      const dates = [
-        ...new Set(
-          visibleValuations.map(
-            valuation => valuation.date
-          )
+      const stale = active.filter(
+        asset => needsReview(
+          asset,
+          latest.get(asset.id),
+          selectedDate
         )
-      ].sort();
+      ).length;
 
-      const assetById = new Map(
-        assets.map(asset => [asset.id, asset])
-      );
+      $('freshness-number').textContent =
+        stale ? `${stale} to review` : 'Up to date';
 
-      const currentValues = {};
-      let index = 0;
+      $('freshness-description').textContent = historical
+        ? `Freshness relative to ${selectedDate}.`
+        : stale
+          ? 'Some values may no longer reflect today.'
+          : 'All active items have recent values.';
 
-      return dates.map(date => {
-        while (
-          index < visibleValuations.length &&
-          visibleValuations[index].date <= date
-        ) {
-          const valuation =
-            visibleValuations[index];
+      $('go-review').classList.toggle('hidden', historical);
 
-          currentValues[valuation.asset_id] =
-            Number(valuation.value);
+      const grouped = new Map();
 
-          index++;
-        }
+      for (const asset of active) {
+        const name = categoryName(asset);
 
-        const total = Object.entries(
-          currentValues
-        ).reduce(
-          (sum, [assetId, value]) => {
-            const asset =
-              assetById.get(assetId);
-
-            return asset
-              ? sum + signedValue(asset, value)
-              : sum;
-          },
-          0
+        grouped.set(
+          name,
+          (grouped.get(name) ?? 0) +
+            contribution(asset, latest.get(asset.id), selectedDate)
         );
+      }
 
-        return { date, total };
-      });
+      $('breakdown').innerHTML = grouped.size
+        ? [...grouped].map(([name, amount]) => `
+            <div class="breakdown-row">
+              <span>${escapeHtml(name)}</span>
+              <strong class="${amount < 0 ? 'negative' : ''}">
+                ${euro(amount)}
+              </strong>
+            </div>
+          `).join('')
+        : '<p class="muted small">No items recorded yet.</p>';
+
+      renderChanges(selectedDate);
+      renderChart(selectedDate);
     }
 
-    function render() {
-      const latest =
-        latestValuesAsOf(today());
+    $('asof').onchange = () => {
+      if (!$('asof').value || $('asof').value > today()) {
+        $('asof').value = today();
+      }
 
-      const netWorth =
-        netWorthFromValues(latest);
+      renderDashboard();
+    };
 
-      const byCategory = {};
+    $('return-today').onclick = () => {
+      $('asof').value = today();
+      renderDashboard();
+    };
+
+    function renderChanges(date) {
+      const previousDate = previousMonthEnd(date);
+      const before = latestOn(previousDate);
+      const after = latestOn(date);
+
+      const valueChanges = [];
+      const newlyTracked = [];
+      const archived = [];
 
       for (const asset of assets) {
-        const value = latest[asset.id] ?? 0;
+        const wasActive = isActiveOn(asset, previousDate);
+        const isActive = isActiveOn(asset, date);
 
-        byCategory[asset.category] =
-          (byCategory[asset.category] ?? 0) +
-          value;
+        const oldAmount = contribution(
+          asset,
+          before.get(asset.id),
+          previousDate
+        );
+
+        const newAmount = contribution(
+          asset,
+          after.get(asset.id),
+          date
+        );
+
+        const difference = newAmount - oldAmount;
+
+        if (Math.abs(difference) < .005) continue;
+
+        const item = { asset, difference };
+
+        if (wasActive && !isActive) {
+          archived.push(item);
+        } else if (!before.has(asset.id) && after.has(asset.id)) {
+          newlyTracked.push(item);
+        } else {
+          valueChanges.push(item);
+        }
       }
 
-      $('networth').textContent =
-        fmt(netWorth);
+      $('changes-period').textContent =
+        `${previousDate} → ${date}`;
 
-      $('asset-count').textContent =
-        `${assets.length} ${
-          assets.length === 1
-            ? 'item'
-            : 'items'
-        }`;
+      function section(title, rows) {
+        if (!rows.length) return '';
 
-      renderMonthlyChange(
-        latest,
-        netWorth
-      );
-
-      renderBreakdown(byCategory);
-      renderAssetRows(latest);
-      renderHistorySelector();
-      renderHistoryRows();
-      renderChart();
-    }
-
-    function renderMonthlyChange(
-      latest,
-      currentNetWorth
-    ) {
-      const previous =
-        latestValuesAsOf(
-          previousMonthEnd()
-        );
-
-      const allItemsHaveCurrentValues =
-        assets.length > 0 &&
-        assets.every(
-          asset =>
-            latest[asset.id] !== undefined
-        );
-
-      const allItemsHavePreviousValues =
-        assets.length > 0 &&
-        assets.every(
-          asset =>
-            previous[asset.id] !== undefined
-        );
-
-      if (
-        !allItemsHaveCurrentValues ||
-        !allItemsHavePreviousValues
-      ) {
-        $('change-pill').classList.add(
-          'hidden'
-        );
-
-        $('change-description').textContent =
-          assets.length
-            ? 'Monthly comparison available once every item has a value from before this month'
-            : 'Add your first asset to get started';
-
-        return;
-      }
-
-      const previousNetWorth =
-        netWorthFromValues(previous);
-
-      const change =
-        currentNetWorth -
-        previousNetWorth;
-
-      $('change-pill').textContent =
-        `${change >= 0 ? '+' : ''}${
-          fmt(change)
-        }`;
-
-      $('change-pill').classList.remove(
-        'hidden'
-      );
-
-      $('change-description').textContent =
-        'since the end of last month';
-    }
-
-    function renderBreakdown(
-      byCategory
-    ) {
-      const categories =
-        Object.entries(byCategory);
-
-      $('breakdown').innerHTML =
-        categories.length
-          ? categories.map(
-              ([category, value]) => `
-                <div class="snapshot-row">
-                  <span class="snapshot-name">
-                    <span class="dot ${category}"></span>
-                    ${CATEGORIES[category]}
-                  </span>
-                  <span class="snapshot-value ${
-                    category === 'debt'
-                      ? 'negative'
-                      : ''
-                  }">
-                    ${
-                      category === 'debt'
-                        ? '−'
-                        : ''
-                    }${fmt(value)}
-                  </span>
-                </div>
-              `
-            ).join('')
-          : '<span class="hint">Your categories will appear here.</span>';
-    }
-
-    function renderAssetRows(
-      latest
-    ) {
-      $('asset-rows').innerHTML =
-        assets.length
-          ? assets.map(asset => {
-              const latestValue =
-                latest[asset.id];
-
-              return `
-                <tr data-asset-id="${
-                  asset.id
-                }">
-                  <td class="asset-name">
-                    ${escapeHtml(asset.name)}
-                  </td>
-
-                  <td>
-                    <span class="category-badge">
-                      ${
-                        CATEGORIES[
-                          asset.category
-                        ]
-                      }
-                    </span>
-                  </td>
-
-                  <td class="align-right ${
-                    asset.category === 'debt'
-                      ? 'negative'
-                      : ''
-                  }">
-                    ${
-                      latestValue ===
-                      undefined
-                        ? '—'
-                        : fmt(latestValue)
-                    }
-                  </td>
-
-                  <td>
-                    <div class="row-controls">
-                      <input
-                        class="field value-field"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="New value"
-                        aria-label="New value for ${
-                          escapeHtml(
-                            asset.name
-                          )
-                        }">
-
-                      <input
-                        class="field date-field"
-                        type="date"
-                        max="${today()}"
-                        value="${today()}"
-                        aria-label="Date for ${
-                          escapeHtml(
-                            asset.name
-                          )
-                        }">
-
-                      <button
-                        class="button button-small save-btn"
-                        type="button">
-                        Save
-                      </button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <button
-                      class="button button-small button-danger delete-btn"
-                      type="button"
-                      aria-label="Delete ${
-                        escapeHtml(
-                          asset.name
-                        )
-                      }">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              `;
-            }).join('')
-          : `
-              <tr>
-                <td colspan="5"
-                    class="table-empty">
-                  Nothing here yet.
-                  Add your first asset or debt below.
-                </td>
-              </tr>
-            `;
-    }
-
-    function renderHistorySelector() {
-      const selector =
-        $('history-asset');
-
-      const selected =
-        selector.value;
-
-      selector.innerHTML =
-        '<option value="">Choose an item</option>' +
-        assets.map(
-          asset => `
-            <option value="${asset.id}">
-              ${escapeHtml(asset.name)}
-            </option>
-          `
-        ).join('');
-
-      if (
-        assets.some(
-          asset =>
-            asset.id === selected
-        )
-      ) {
-        selector.value = selected;
-      } else if (
-        assets.length > 0
-      ) {
-        selector.value =
-          assets[0].id;
-      }
-    }
-
-    function renderHistoryRows() {
-      const assetId =
-        $('history-asset').value;
-
-      const entries = valuations
-        .filter(
-          valuation =>
-            valuation.asset_id ===
-            assetId
-        )
-        .sort(
+        rows.sort(
           (a, b) =>
-            b.date.localeCompare(
-              a.date
-            )
+            Math.abs(b.difference) -
+            Math.abs(a.difference)
         );
 
-      $('history-rows').innerHTML =
-        entries.length
-          ? entries.map(
-              entry => `
-                <tr data-valuation-id="${
-                  entry.id
-                }">
-                  <td>
-                    <input
-                      class="field date-field"
-                      type="date"
-                      max="${today()}"
-                      value="${
-                        entry.date
-                      }"
-                      aria-label="Entry date">
-                  </td>
+        return `
+          <h3 style="margin:18px 0 9px">${title}</h3>
+          ${rows.map(({ asset, difference }) => `
+            <div class="change-row">
+              <span>${escapeHtml(asset.name)}</span>
+              <strong class="${difference < 0 ? 'negative' : ''}">
+                ${difference >= 0 ? '+' : ''}${euro(difference)}
+              </strong>
+            </div>
+          `).join('')}
+        `;
+      }
 
-                  <td>
-                    <input
-                      class="field value-field"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value="${
-                        entry.value
-                      }"
-                      aria-label="Entry value">
-                  </td>
+      $('changes-content').innerHTML =
+        section('Changes in recorded values', valueChanges) +
+        section('Newly tracked', newlyTracked) +
+        section('Archived', archived) +
+        (archived.length
+          ? `<p class="notice" style="margin-top:15px">
+               Archived items leave tracked net worth. This does
+               <strong>not</strong> mean the money was lost.
+             </p>`
+          : '') +
+        `<p class="muted small" style="margin-top:16px">
+           These are changes in recorded net worth, not investment returns.
+           Transfers, deposits, debt repayments, and ownership changes
+           can affect them.
+         </p>`;
 
-                  <td>
-                    <div class="row-controls">
-                      <button
-                        class="button button-small history-save-btn"
-                        type="button">
-                        Save
-                      </button>
-
-                      <button
-                        class="button button-small button-danger history-delete-btn"
-                        type="button">
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              `
-            ).join('')
-          : `
-              <tr>
-                <td colspan="3"
-                    class="table-empty">
-                  ${
-                    assetId
-                      ? 'No values recorded for this item yet.'
-                      : 'Choose an item to view its history.'
-                  }
-                </td>
-              </tr>
-            `;
+      if (
+        !valueChanges.length &&
+        !newlyTracked.length &&
+        !archived.length
+      ) {
+        $('changes-content').innerHTML =
+          '<p class="muted small">No recorded change for this period.</p>';
+      }
     }
 
-    $('history-asset').addEventListener(
-      'change',
-      renderHistoryRows
-    );
+    function rangeStart(date, range) {
+      if (range === 'all') return null;
 
-    function renderChart() {
-      const points = timeline();
+      const [year, month, day] = date.split('-').map(Number);
+      const months = range === '3m' ? 3 : 12;
+
+      const target = new Date(year, month - 1 - months, day);
+
+      return [
+        target.getFullYear(),
+        String(target.getMonth() + 1).padStart(2, '0'),
+        String(target.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    function renderChart(date) {
+      const cutoff = rangeStart(date, chartRange);
+      const allDates = new Set(
+        valuations
+          .filter(entry => entry.date <= date)
+          .map(entry => entry.date)
+      );
+
+      for (const asset of assets) {
+        if (asset.archived_on && asset.archived_on <= date) {
+          allDates.add(asset.archived_on);
+        }
+      }
+
+      for (const change of ownershipChanges) {
+        if (change.effective_date <= date) {
+          allDates.add(change.effective_date);
+        }
+      }
+
+      const sorted = [...allDates].sort();
+      const hadDataBeforeCutoff =
+        cutoff && sorted.some(point => point < cutoff);
+
+      const points = sorted.filter(
+        point => !cutoff || point >= cutoff
+      );
+
+      if (hadDataBeforeCutoff) points.unshift(cutoff);
 
       if (chart) {
         chart.destroy();
         chart = null;
       }
 
-      const hasChart =
-        points.length >= 2;
-
-      $('chart-wrap').classList.toggle(
-        'hidden',
-        !hasChart
-      );
-
+      $('chart-box').classList.toggle('hidden', points.length < 2);
       $('chart-empty').classList.toggle(
         'hidden',
-        hasChart
+        points.length >= 2
       );
 
-      if (!hasChart) return;
+      $('chart-summary').textContent = points.length >= 2
+        ? `${euro(netWorthOn(points[0]))} → ` +
+          `${euro(netWorthOn(points[points.length - 1]))}`
+        : 'Not enough dates in this range yet.';
 
-      chart = new Chart(
-        $('chart'),
-        {
-          type: 'line',
+      for (const button of $('chart-ranges').querySelectorAll('button')) {
+        button.classList.toggle(
+          'active',
+          button.dataset.range === chartRange
+        );
+      }
 
-          data: {
-            labels: points.map(
-              point => point.date
-            ),
+      if (points.length < 2) return;
 
-            datasets: [{
-              data: points.map(
-                point => point.total
-              ),
-              borderColor:
-                '#167c5b',
-              backgroundColor:
-                'rgba(22, 124, 91, .09)',
-              borderWidth: 3,
-              pointBackgroundColor:
-                '#167c5b',
-              pointRadius: 3,
-              pointHoverRadius: 6,
-              tension: .25,
-              fill: true
-            }]
-          },
-
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-
-            interaction: {
-              intersect: false,
-              mode: 'index'
-            },
-
-            plugins: {
-              legend: {
-                display: false
-              },
-
-              tooltip: {
-                callbacks: {
-                  label: context =>
-                    `Net worth: ${
-                      fmt(
-                        context.parsed.y
-                      )
-                    }`
-                }
+      chart = new Chart($('chart'), {
+        type: 'line',
+        data: {
+          labels: points,
+          datasets: [{
+            data: points.map(netWorthOn),
+            borderColor: '#167453',
+            backgroundColor: 'rgba(22,116,83,.08)',
+            borderWidth: 3,
+            pointRadius: points.length > 30 ? 0 : 3,
+            pointHoverRadius: 5,
+            fill: true,
+            tension: .15
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: context =>
+                  `Net worth: ${euro(context.parsed.y)}`
               }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { maxTicksLimit: 6, color: '#64766c' }
             },
-
-            scales: {
-              x: {
-                grid: {
-                  display: false
-                },
-
-                ticks: {
-                  maxTicksLimit: 6,
-                  color: '#687781'
-                }
-              },
-
-              y: {
-                grid: {
-                  color: '#edf1ee'
-                },
-
-                border: {
-                  display: false
-                },
-
-                ticks: {
-                  color: '#687781',
-
-                  callback:
-                    value => fmt(value)
-                }
+            y: {
+              grid: { color: '#edf1ed' },
+              ticks: {
+                color: '#64766c',
+                callback: value => euro(value)
               }
             }
           }
         }
+      });
+    }
+
+    $('chart-ranges').onclick = event => {
+      const button = event.target.closest('[data-range]');
+      if (!button) return;
+
+      chartRange = button.dataset.range;
+      renderChart($('asof').value || today());
+    };
+
+    function itemDescription(asset, entry) {
+      const details = [categoryName(asset)];
+
+      if (asset.category === 'real_estate') {
+        details.push(`${shareOn(asset, today())}% owned`);
+
+        if (entry) {
+          details.push(
+            `Mortgage ${euro(entry.mortgage_value ?? 0)}`
+          );
+        }
+      }
+
+      if (asset.category === 'fixed_deposit' &&
+          asset.maturity_date) {
+        details.push(
+          asset.maturity_date > today()
+            ? `Locked until ${asset.maturity_date}`
+            : `Released ${asset.maturity_date}`
+        );
+      }
+
+      if (
+        asset.category === 'debt' &&
+        asset.subtract_debt_from_accessible
+      ) {
+        details.push('Deducted from accessible balance');
+      }
+
+      details.push(
+        entry
+          ? `Updated ${entry.date}`
+          : 'No value recorded'
+      );
+
+      return details.join(' · ');
+    }
+
+    function renderItems() {
+      const active = assets.filter(
+        asset => !asset.archived_on
+      );
+
+      const archived = assets.filter(
+        asset => asset.archived_on
+      );
+
+      const latest = latestOn(today());
+
+      $('item-count').textContent =
+        `${active.length} active ${
+          active.length === 1 ? 'item' : 'items'
+        }`;
+
+      $('archived-count').textContent = archived.length;
+
+      $('item-list').innerHTML = active.length
+        ? active.map((asset, index) => {
+            const entry = latest.get(asset.id);
+            const amount = contribution(asset, entry, today());
+            const warning = needsReview(asset, entry, today());
+
+            return `
+              <div class="item-row" data-id="${asset.id}">
+                <div class="reorder">
+                  <button class="drag" type="button"
+                          aria-label="Drag ${escapeHtml(asset.name)} to reorder"
+                          title="Drag to reorder">⋮⋮</button>
+
+                  <button class="move move-up" type="button"
+                          aria-label="Move ${escapeHtml(asset.name)} up"
+                          ${index === 0 ? 'disabled' : ''}>↑</button>
+
+                  <button class="move move-down" type="button"
+                          aria-label="Move ${escapeHtml(asset.name)} down"
+                          ${index === active.length - 1
+                            ? 'disabled'
+                            : ''}>↓</button>
+                </div>
+
+                <div class="item-primary">
+                  <strong>${escapeHtml(asset.name)}</strong>
+                  <div class="muted">
+                    ${escapeHtml(itemDescription(asset, entry))}
+                  </div>
+                  ${warning
+                    ? '<span class="badge warning">Needs review</span>'
+                    : ''}
+                </div>
+
+                <div class="item-value ${
+                  amount < 0 ? 'negative' : ''
+                }">
+                  ${entry ? euro(amount) : '—'}
+                </div>
+
+                <div class="item-actions">
+                  <button class="button secondary small details"
+                          type="button">Details</button>
+                  <button class="button ghost small edit"
+                          type="button">Edit</button>
+                </div>
+              </div>
+            `;
+          }).join('')
+        : `
+          <div class="empty">
+            No active items. Add your first account, asset, or debt.
+          </div>
+        `;
+
+      $('archived-toggle').setAttribute(
+        'aria-expanded',
+        String(archivedOpen)
+      );
+
+      $('archived-list').classList.toggle('hidden', !archivedOpen);
+
+      $('archived-list').innerHTML = archived.length
+        ? archived.map(asset => `
+            <div class="item-row" data-archived="${asset.id}">
+              <div></div>
+              <div class="item-primary">
+                <strong>${escapeHtml(asset.name)}</strong>
+                <div class="muted">
+                  Archived ${asset.archived_on}
+                </div>
+              </div>
+              <div></div>
+              <div class="item-actions">
+                <button class="button secondary small details"
+                        type="button">History</button>
+                <button class="button ghost small restore"
+                        type="button">Restore</button>
+              </div>
+            </div>
+          `).join('')
+        : '<p class="muted small">No archived items.</p>';
+
+      if (!sortable && window.Sortable) {
+        sortable = Sortable.create($('item-list'), {
+          animation: 170,
+          handle: '.drag',
+          draggable: '.item-row[data-id]',
+          ghostClass: 'sort-ghost',
+          forceFallback: true,
+          fallbackOnBody: true,
+          onEnd: saveOrder
+        });
+      }
+    }
+
+    $('archived-toggle').onclick = () => {
+      archivedOpen = !archivedOpen;
+      renderItems();
+    };
+
+    async function saveOrder() {
+      if (savingOrder || !currentUserId) return;
+
+      const ids = [
+        ...$('item-list').querySelectorAll('.item-row[data-id]')
+      ].map(row => row.dataset.id);
+
+      const previous = assets
+        .filter(asset => !asset.archived_on)
+        .map(asset => asset.id);
+
+      if (ids.join(',') === previous.join(',')) return;
+
+      savingOrder = true;
+      if (sortable) sortable.option('disabled', true);
+
+      const { error } = await sb.rpc(
+        'reorder_my_assets',
+        { p_ids: ids }
+      );
+
+      savingOrder = false;
+      if (sortable) sortable.option('disabled', false);
+
+      await loadData();
+
+      showToast(
+        error ? `Could not save order: ${error.message}` : 'Order saved.',
+        Boolean(error)
       );
     }
 
-    // Add an item.
-    $('add-form').addEventListener(
-      'submit',
-      async event => {
-        event.preventDefault();
+    $('item-list').onclick = async event => {
+      const button = event.target.closest('button');
+      const row = event.target.closest('[data-id]');
 
-        const name =
-          $('new-name').value.trim();
+      if (!button || !row) return;
 
-        const category =
-          $('new-cat').value;
-
-        const inputValue =
-          $('new-value').value;
-
-        if (!name) {
-          setMessage(
-            'app-msg',
-            'Enter a name for the item.',
-            'error'
-          );
-          return;
-        }
-
-        if (
-          inputValue !== '' &&
-          !validAmount(inputValue)
-        ) {
-          setMessage(
-            'app-msg',
-            'Enter a value of zero or more.',
-            'error'
-          );
-          return;
-        }
-
-        $('add-btn').disabled = true;
-        setMessage('app-msg', '');
-
-        try {
-          const {
-            data: asset,
-            error
-          } = await sb
-            .from('assets')
-            .insert({
-              name,
-              category
-            })
-            .select()
-            .single();
-
-          if (error) throw error;
-
-          let valueError = null;
-
-          if (inputValue !== '') {
-            const result = await sb
-              .from('valuations')
-              .insert({
-                asset_id: asset.id,
-                value: Number(
-                  inputValue
-                ),
-                date: today()
-              });
-
-            valueError =
-              result.error;
-          }
-
-          $('add-form').reset();
-          await loadData();
-
-          if (valueError) {
-            setMessage(
-              'app-msg',
-              `Item added, but its value could not be saved: ${
-                valueError.message
-              }`,
-              'error'
-            );
-          }
-        } catch (error) {
-          setMessage(
-            'app-msg',
-            error.message,
-            'error'
-          );
-        } finally {
-          $('add-btn').disabled =
-            false;
-        }
-      }
-    );
-
-    // Save a new value or delete an entire item.
-    $('asset-rows').addEventListener(
-      'click',
-      async event => {
-        const button =
-          event.target.closest(
-            'button'
-          );
-
-        const row =
-          event.target.closest(
-            'tr[data-asset-id]'
-          );
-
-        if (!button || !row) return;
-
-        const assetId =
-          row.dataset.assetId;
-
-        if (
-          button.classList.contains(
-            'save-btn'
-          )
-        ) {
-          const value =
-            row.querySelector(
-              '.value-field'
-            ).value;
-
-          const date =
-            row.querySelector(
-              '.date-field'
-            ).value;
-
-          if (
-            !validAmount(value) ||
-            !date ||
-            date > today()
-          ) {
-            setMessage(
-              'app-msg',
-              'Enter a value of zero or more and select a date no later than today.',
-              'error'
-            );
-            return;
-          }
-
-          button.disabled = true;
-
-          const { error } = await sb
-            .from('valuations')
-            .upsert(
-              {
-                asset_id: assetId,
-                value: Number(value),
-                date
-              },
-              {
-                onConflict:
-                  'asset_id,date'
-              }
-            );
-
-          if (error) {
-            setMessage(
-              'app-msg',
-              error.message,
-              'error'
-            );
-
-            button.disabled =
-              false;
-          } else {
-            await loadData();
-          }
-        }
-
-        if (
-          button.classList.contains(
-            'delete-btn'
-          )
-        ) {
-          const asset =
-            assets.find(
-              item =>
-                item.id === assetId
-            );
-
-          if (!asset) return;
-
-          if (!confirm(
-            `Delete "${asset.name}" and its entire value history? This cannot be undone.`
-          )) {
-            return;
-          }
-
-          button.disabled = true;
-
-          const { error } = await sb
-            .from('assets')
-            .delete()
-            .eq('id', assetId);
-
-          if (error) {
-            setMessage(
-              'app-msg',
-              error.message,
-              'error'
-            );
-
-            button.disabled =
-              false;
-          } else {
-            await loadData();
-          }
-        }
-      }
-    );
-
-    // Correct or remove a historical value.
-    $('history-rows').addEventListener(
-      'click',
-      async event => {
-        const button =
-          event.target.closest(
-            'button'
-          );
-
-        const row =
-          event.target.closest(
-            'tr[data-valuation-id]'
-          );
-
-        if (!button || !row) return;
-
-        const entryId =
-          row.dataset.valuationId;
-
-        if (
-          button.classList.contains(
-            'history-save-btn'
-          )
-        ) {
-          const date =
-            row.querySelector(
-              '.date-field'
-            ).value;
-
-          const value =
-            row.querySelector(
-              '.value-field'
-            ).value;
-
-          if (
-            !date ||
-            date > today() ||
-            !validAmount(value)
-          ) {
-            setMessage(
-              'app-msg',
-              'Enter a valid date no later than today and a value of zero or more.',
-              'error'
-            );
-            return;
-          }
-
-          button.disabled = true;
-
-          const { error } = await sb
-            .from('valuations')
-            .update({
-              date,
-              value: Number(value)
-            })
-            .eq('id', entryId);
-
-          if (error) {
-            setMessage(
-              'app-msg',
-              error.message,
-              'error'
-            );
-
-            button.disabled =
-              false;
-          } else {
-            await loadData();
-          }
-        }
-
-        if (
-          button.classList.contains(
-            'history-delete-btn'
-          )
-        ) {
-          if (!confirm(
-            'Delete this value entry? This cannot be undone.'
-          )) {
-            return;
-          }
-
-          button.disabled = true;
-
-          const { error } = await sb
-            .from('valuations')
-            .delete()
-            .eq('id', entryId);
-
-          if (error) {
-            setMessage(
-              'app-msg',
-              error.message,
-              'error'
-            );
-
-            button.disabled =
-              false;
-          } else {
-            await loadData();
-          }
-        }
-      }
-    );
-
-    // Download assets and their valuation history.
-    // The CSV can be opened in Excel or another spreadsheet.
-    function csvCell(value) {
-      let text = String(
-        value ?? ''
+      const asset = assets.find(
+        item => item.id === row.dataset.id
       );
 
-      // Prevent spreadsheet formulas in user-entered names.
+      if (!asset) return;
+
       if (
-        /^[\s]*[=+\-@]/.test(text)
+        button.classList.contains('move-up') ||
+        button.classList.contains('move-down')
       ) {
+        if (savingOrder) return;
+
+        const neighbour = button.classList.contains('move-up')
+          ? row.previousElementSibling
+          : row.nextElementSibling;
+
+        if (!neighbour?.dataset.id) return;
+
+        if (button.classList.contains('move-up')) {
+          row.parentNode.insertBefore(row, neighbour);
+        } else {
+          row.parentNode.insertBefore(neighbour, row);
+        }
+
+        await saveOrder();
+      } else if (button.classList.contains('details')) {
+        openItemDetails(asset);
+      } else if (button.classList.contains('edit')) {
+        openEditDialog(asset);
+      }
+    };
+
+    $('archived-list').onclick = event => {
+      const button = event.target.closest('button');
+      const row = event.target.closest('[data-archived]');
+
+      if (!button || !row) return;
+
+      const asset = assets.find(
+        item => item.id === row.dataset.archived
+      );
+
+      if (!asset) return;
+
+      if (button.classList.contains('details')) {
+        openItemDetails(asset);
+      } else if (button.classList.contains('restore')) {
+        confirmAction({
+          title: `Restore ${asset.name}?`,
+          description:
+            'Its last recorded value will count again from the day ' +
+            'it was archived onward. Review that value after restoring.',
+          actionLabel: 'Restore item',
+          action: async () => {
+            const { error } = await sb.from('assets')
+              .update({ archived_on: null })
+              .eq('id', asset.id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast('Item restored. Review its current value.');
+          }
+        });
+      }
+    };
+
+    function renderCheckin() {
+      const active = assets.filter(
+        asset => !asset.archived_on
+      );
+
+      const latest = latestOn(today());
+      const start = monthStart(today());
+
+      const pending = active.filter(asset => {
+        const entry = latest.get(asset.id);
+        return !entry || entry.date < start;
+      });
+
+      const reviewed = active.filter(
+        asset => !pending.includes(asset)
+      );
+
+      $('checkin-count').textContent =
+        `${reviewed.length} of ${active.length} reviewed`;
+
+      const percentage = active.length
+        ? Math.round(reviewed.length / active.length * 100)
+        : 0;
+
+      $('checkin-progress').style.width = `${percentage}%`;
+
+      document.querySelector('.check-progress').setAttribute(
+        'aria-valuenow',
+        String(percentage)
+      );
+
+      $('checkin-complete').classList.toggle(
+        'hidden',
+        !active.length || Boolean(pending.length)
+      );
+
+      $('pending-list').innerHTML = pending.length
+        ? pending.map(checkinCard).join('')
+        : active.length
+          ? ''
+          : `
+            <div class="empty" style="margin-top:19px">
+              Add an item to start your monthly check-in.
+            </div>
+          `;
+
+      $('reviewed-count').textContent = reviewed.length;
+
+      $('reviewed-toggle').classList.toggle(
+        'hidden',
+        !reviewed.length
+      );
+
+      $('reviewed-toggle').setAttribute(
+        'aria-expanded',
+        String(reviewedOpen)
+      );
+
+      $('reviewed-list').classList.toggle(
+        'hidden',
+        !reviewedOpen
+      );
+
+      $('reviewed-list').innerHTML =
+        reviewedOpen
+          ? reviewed.map(checkinCard).join('')
+          : '';
+    }
+
+    function checkinCard(asset) {
+      const entry = latestOn(today()).get(asset.id);
+      const property = asset.category === 'real_estate';
+      const reviewed =
+        entry && entry.date >= monthStart(today());
+
+      return `
+        <div class="review-item" data-review="${asset.id}">
+          <div class="review-top">
+            <div>
+              <h3>${escapeHtml(asset.name)}</h3>
+              <p class="muted small">
+                ${escapeHtml(categoryName(asset))} ·
+                ${entry
+                  ? `Last recorded ${entry.date}`
+                  : 'No value recorded yet'}
+              </p>
+            </div>
+
+            <strong>
+              ${entry
+                ? euro(contribution(asset, entry, today()))
+                : '—'}
+            </strong>
+          </div>
+
+          <div class="review-fields">
+            <div>
+              <label for="review-value-${asset.id}">
+                ${property
+                  ? 'Full property value (€)'
+                  : asset.category === 'debt'
+                    ? 'Amount owed (€)'
+                    : 'Current value (€)'}
+              </label>
+
+              <input id="review-value-${asset.id}"
+                     class="field review-value"
+                     type="text"
+                     inputmode="decimal"
+                     value="${escapeHtml(displayInput(entry?.value))}"
+                     placeholder="0,00">
+            </div>
+
+            ${property ? `
+              <div>
+                <label for="review-mortgage-${asset.id}">
+                  Your mortgage (€)
+                </label>
+
+                <input id="review-mortgage-${asset.id}"
+                       class="field review-mortgage"
+                       type="text"
+                       inputmode="decimal"
+                       value="${escapeHtml(
+                         displayInput(entry?.mortgage_value ?? 0)
+                       )}">
+              </div>
+            ` : ''}
+
+            <button class="button secondary review-save"
+                    type="button">
+              ${reviewed ? 'Update value' : 'Confirm / save'}
+            </button>
+          </div>
+
+          <p class="field-error" role="alert"></p>
+        </div>
+      `;
+    }
+
+    $('reviewed-toggle').onclick = () => {
+      reviewedOpen = !reviewedOpen;
+      renderCheckin();
+    };
+
+    async function saveValuation(asset, date, value, mortgage = 0) {
+      const { error } = await sb.from('valuations').upsert(
+        {
+          asset_id: asset.id,
+          date,
+          value,
+          mortgage_value:
+            asset.category === 'real_estate'
+              ? mortgage
+              : 0
+        },
+        { onConflict: 'asset_id,date' }
+      );
+
+      if (error) throw error;
+    }
+
+    $('view-checkin').onclick = async event => {
+      const button = event.target.closest('.review-save');
+      const card = event.target.closest('[data-review]');
+
+      if (!button || !card) return;
+
+      const asset = assets.find(
+        item => item.id === card.dataset.review
+      );
+
+      if (!asset) return;
+
+      const valueField = card.querySelector('.review-value');
+      const mortgageField = card.querySelector('.review-mortgage');
+
+      const value = parseAmount(valueField.value);
+      const mortgage = mortgageField
+        ? parseAmount(mortgageField.value)
+        : 0;
+
+      card.querySelector('.field-error').textContent = '';
+      valueField.removeAttribute('aria-invalid');
+      mortgageField?.removeAttribute('aria-invalid');
+
+      if (value === null || mortgage === null) {
+        if (value === null) {
+          valueField.setAttribute('aria-invalid', 'true');
+        }
+
+        if (mortgage === null) {
+          mortgageField?.setAttribute('aria-invalid', 'true');
+        }
+
+        card.querySelector('.field-error').textContent =
+          'Enter a non-negative amount, for example 1234,56.';
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Saving...';
+
+      try {
+        await saveValuation(asset, today(), value, mortgage);
+        await loadData();
+
+        if (assets.some(item => item.id === asset.id)) {
+          showToast(`${asset.name} reviewed.`);
+        }
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = 'Try again';
+
+        card.querySelector('.field-error').textContent =
+          error.message;
+      }
+    };
+
+    function configureDialog({
+      eyebrow = '',
+      title,
+      description = '',
+      body = '',
+      footer = ''
+    }) {
+      const dialog = $('app-dialog');
+
+      $('dialog-eyebrow').textContent = eyebrow;
+      $('dialog-title').textContent = title;
+      $('dialog-description').textContent = description;
+      $('dialog-body').innerHTML = body;
+      $('dialog-footer').innerHTML = footer;
+      $('dialog-error').textContent = '';
+
+      if (!dialog.open) dialog.showModal();
+
+      return dialog;
+    }
+
+    function closeDialog() {
+      if ($('app-dialog').open) $('app-dialog').close();
+    }
+
+    $('close-dialog').onclick = closeDialog;
+
+    $('app-dialog').addEventListener('click', event => {
+      if (event.target === $('app-dialog')) closeDialog();
+    });
+
+    $('app-dialog').addEventListener('close', () => {
+      $('dialog-body').replaceChildren();
+      $('dialog-footer').replaceChildren();
+    });
+
+    function dialogError(text) {
+      $('dialog-error').textContent = text;
+    }
+
+    function confirmAction({
+      title,
+      description,
+      actionLabel,
+      destructive = false,
+      action
+    }) {
+      configureDialog({
+        eyebrow: 'Please confirm',
+        title,
+        description,
+        footer: `
+          <button class="button secondary cancel-action"
+                  type="button">Cancel</button>
+          <button class="button ${
+            destructive ? 'danger' : ''
+          } confirm-action" type="button">
+            ${escapeHtml(actionLabel)}
+          </button>
+        `
+      });
+
+      $('dialog-footer').querySelector('.cancel-action').onclick =
+        closeDialog;
+
+      $('dialog-footer').querySelector('.confirm-action').onclick =
+        async event => {
+          const button = event.currentTarget;
+          button.disabled = true;
+
+          try {
+            await action();
+            closeDialog();
+          } catch (error) {
+            dialogError(error.message);
+            button.disabled = false;
+          }
+        };
+    }
+
+    function categoryOptions(selected) {
+      const ordinary = [
+        ['cash', 'Cash'],
+        ['stocks', 'Investments'],
+        ['crypto', 'Crypto'],
+        ['other', 'Other']
+      ];
+
+      return ordinary.map(([value, label]) => `
+        <option value="${value}"
+                ${selected === value ? 'selected' : ''}>
+          ${label}
+        </option>
+      `).join('') +
+      categories.map(category => {
+        const value = `custom:${category.id}`;
+
+        return `
+          <option value="${value}"
+                  ${selected === value ? 'selected' : ''}>
+            ${escapeHtml(category.name)}
+          </option>
+        `;
+      }).join('');
+    }
+
+    function itemFields(type, item = null) {
+      const property = type === 'real_estate';
+      const deposit = type === 'fixed_deposit';
+      const debt = type === 'debt';
+
+      return `
+        <div class="form-grid">
+          <div class="full">
+            <label for="form-name">Item name</label>
+            <input id="form-name" class="field"
+                   maxlength="100" required
+                   placeholder="${
+                     property
+                       ? 'e.g. Apartment'
+                       : debt
+                         ? 'e.g. Student loan'
+                         : 'e.g. Savings account'
+                   }"
+                   value="${escapeHtml(item?.name ?? '')}">
+          </div>
+
+          ${type === 'other' ? `
+            <div class="full">
+              <label for="form-category">Category</label>
+              <select id="form-category" class="field">
+                ${categoryOptions(
+                  item?.category === 'custom'
+                    ? `custom:${item.custom_category_id}`
+                    : item?.category ?? 'other'
+                )}
+              </select>
+              <button id="create-category" class="button ghost small"
+                      type="button" style="margin-top:7px">
+                + Create a category
+              </button>
+            </div>
+          ` : ''}
+
+          ${!item ? `
+            <div>
+              <label for="form-date">Value as of</label>
+              <input id="form-date" class="field" type="date"
+                     max="${today()}" value="${today()}" required>
+            </div>
+
+            <div>
+              <label for="form-value">
+                ${property
+                  ? 'Full property value (€)'
+                  : debt
+                    ? 'Amount owed (€)'
+                    : 'Current value (€)'}
+              </label>
+              <input id="form-value" class="field" type="text"
+                     inputmode="decimal" placeholder="0,00" required>
+            </div>
+          ` : ''}
+
+          ${property && !item ? `
+            <div>
+              <label for="form-share">Your ownership (%)</label>
+              <input id="form-share" class="field" type="text"
+                     inputmode="decimal" value="100" required>
+            </div>
+
+            <div>
+              <label for="form-mortgage">
+                Your outstanding mortgage (€)
+              </label>
+              <input id="form-mortgage" class="field" type="text"
+                     inputmode="decimal" value="0" required>
+            </div>
+          ` : ''}
+
+          ${property && item ? `
+            <div class="full">
+              <label for="form-share">
+                Your ownership from today (%)
+              </label>
+              <input id="form-share" class="field" type="text"
+                     inputmode="decimal"
+                     value="${displayInput(shareOn(item, today()))}">
+              <p class="muted small">
+                Earlier dates retain their earlier ownership percentage.
+                Update property value and mortgage in item history.
+              </p>
+            </div>
+          ` : ''}
+
+          ${deposit ? `
+            <div class="full">
+              <label for="form-maturity">Fixed until</label>
+              <input id="form-maturity" class="field" type="date"
+                     value="${item?.maturity_date ?? ''}" required>
+              <p class="muted small">
+                Maturity does not automatically add interest.
+              </p>
+            </div>
+          ` : ''}
+
+          ${
+            !property && !deposit && !debt
+              ? `
+                <div class="full">
+                  <label class="check-label">
+                    <input id="form-accessible" type="checkbox"
+                           ${
+                             item
+                               ? item.accessible ? 'checked' : ''
+                               : ['cash', 'stocks'].includes(type)
+                                 ? 'checked'
+                                 : ''
+                           }>
+                    Count as accessible money
+                  </label>
+                </div>
+              `
+              : ''
+          }
+
+          ${debt ? `
+            <div class="full">
+              <label class="check-label">
+                <input id="form-debt-access" type="checkbox"
+                       ${
+                         item?.subtract_debt_from_accessible
+                           ? 'checked'
+                           : ''
+                       }>
+                Subtract this debt from accessible balance
+              </label>
+              <p class="muted small">
+                This debt always reduces net worth. This option only
+                changes accessible balance.
+              </p>
+            </div>
+          ` : ''}
+
+          ${!item ? `
+            <div id="form-preview" class="notice green full"></div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function openAddDialog() {
+      configureDialog({
+        eyebrow: 'New item',
+        title: 'What would you like to track?',
+        description: 'Choose a type, then enter its details.',
+        body: `
+          <div class="type-grid">
+            ${Object.entries(TYPES).map(([key, [name, description]]) => `
+              <button class="type-option" data-type="${key}"
+                      type="button">
+                <strong>${name}</strong>
+                <span>${description}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div id="add-fields"></div>
+        `,
+        footer: `
+          <button class="button secondary" id="add-cancel"
+                  type="button">Cancel</button>
+          <button class="button hidden" id="add-save"
+                  type="button">Add item</button>
+        `
+      });
+
+      $('add-cancel').onclick = closeDialog;
+
+      $('dialog-body').querySelector('.type-grid').onclick = event => {
+        const button = event.target.closest('[data-type]');
+
+        if (!button) return;
+
+        selectAddType(button.dataset.type);
+      };
+    }
+
+    function selectAddType(type) {
+      $('dialog-body').querySelectorAll('.type-option').forEach(
+        option => option.classList.toggle(
+          'selected',
+          option.dataset.type === type
+        )
+      );
+
+      $('add-fields').innerHTML = itemFields(type);
+
+      $('add-save').classList.remove('hidden');
+      $('add-save').onclick = () => saveNewItem(type);
+
+      wireItemForm(type, null);
+      updatePreview(type);
+    }
+
+    function wireItemForm(type, item) {
+      const body = $('dialog-body');
+      const categoryButton = body.querySelector('#create-category');
+
+      if (categoryButton) {
+        categoryButton.onclick = () => openCategoryDialog(
+          () => item
+            ? openEditDialog(
+                assets.find(asset => asset.id === item.id)
+              )
+            : openAddDialog()
+        );
+      }
+
+      if (!item) {
+        body.querySelectorAll('input').forEach(
+          input => input.addEventListener(
+            'input',
+            () => updatePreview(type)
+          )
+        );
+      }
+    }
+
+    function updatePreview(type) {
+      const preview = $('form-preview');
+
+      if (!preview) return;
+
+      const value = parseAmount($('form-value')?.value);
+
+      if (value === null) {
+        preview.textContent =
+          'Enter a value to preview its effect on net worth.';
+        return;
+      }
+
+      let amount = value;
+
+      if (type === 'debt') amount = -value;
+
+      if (type === 'real_estate') {
+        const share = parsePercent($('form-share')?.value);
+        const mortgage = parseAmount($('form-mortgage')?.value);
+
+        if (share === null || mortgage === null) {
+          preview.textContent =
+            'Enter ownership and mortgage to see your net property value.';
+          return;
+        }
+
+        amount = value * share / 100 - mortgage;
+      }
+
+      preview.textContent =
+        `${amount >= 0 ? 'Adds' : 'Subtracts'} ` +
+        `${euro(Math.abs(amount))} ` +
+        `${amount >= 0 ? 'to' : 'from'} recorded net worth.`;
+    }
+
+    async function saveNewItem(type) {
+      const name = $('form-name').value.trim();
+      const date = $('form-date').value;
+      const value = parseAmount($('form-value').value);
+
+      const share = type === 'real_estate'
+        ? parsePercent($('form-share').value)
+        : null;
+
+      const mortgage = type === 'real_estate'
+        ? parseAmount($('form-mortgage').value)
+        : 0;
+
+      const maturity = type === 'fixed_deposit'
+        ? $('form-maturity').value
+        : null;
+
+      if (
+        !name ||
+        !date ||
+        date > today() ||
+        value === null ||
+        (type === 'real_estate' &&
+          (share === null || mortgage === null)) ||
+        (type === 'fixed_deposit' && !maturity)
+      ) {
+        dialogError(
+          'Check all required fields. Amounts must be non-negative; ' +
+          'use, for example, 1234,56.'
+        );
+        return;
+      }
+
+      const selected = type === 'other'
+        ? $('form-category').value
+        : type;
+
+      const custom = selected.startsWith('custom:');
+      const button = $('add-save');
+
+      button.disabled = true;
+      button.textContent = 'Adding...';
+      dialogError('');
+
+      try {
+        const highestOrder = Math.max(
+          0,
+          ...assets.map(asset => Number(asset.sort_order) || 0)
+        );
+
+        const { data: asset, error } = await sb.from('assets')
+          .insert({
+            name,
+            category: custom ? 'custom' : selected,
+            custom_category_id:
+              custom ? selected.slice(7) : null,
+            maturity_date: maturity,
+            ownership_percent: share,
+            accessible:
+              !['debt', 'real_estate', 'fixed_deposit'].includes(
+                custom ? 'custom' : selected
+              ) &&
+              Boolean($('form-accessible')?.checked),
+            subtract_debt_from_accessible:
+              selected === 'debt' &&
+              Boolean($('form-debt-access')?.checked),
+            sort_order: highestOrder + 1
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        try {
+          await saveValuation(asset, date, value, mortgage);
+        } catch (valueError) {
+          const cleanup = await sb.from('assets')
+            .delete()
+            .eq('id', asset.id);
+
+          throw new Error(
+            cleanup.error
+              ? `Value failed to save, and the incomplete item could ` +
+                `not be removed: ${valueError.message}`
+              : `Item was not added: ${valueError.message}`
+          );
+        }
+
+        closeDialog();
+        await loadData();
+        showToast('Item added.');
+      } catch (error) {
+        dialogError(error.message);
+        button.disabled = false;
+        button.textContent = 'Add item';
+      }
+    }
+
+    function openCategoryDialog(returnTo) {
+      closeDialog();
+
+      configureDialog({
+        eyebrow: 'Personal category',
+        title: 'Create a category',
+        description:
+          'Use this for an asset that does not fit an existing category.',
+        body: `
+          <div style="margin-top:18px">
+            <label for="category-name">Category name</label>
+            <input id="category-name" class="field"
+                   maxlength="50" placeholder="e.g. Pension">
+          </div>
+        `,
+        footer: `
+          <button class="button secondary" id="category-cancel"
+                  type="button">Cancel</button>
+          <button class="button" id="category-save"
+                  type="button">Create category</button>
+        `
+      });
+
+      $('category-cancel').onclick = () => {
+        closeDialog();
+        returnTo?.();
+      };
+
+      $('category-save').onclick = async () => {
+        const name = $('category-name').value.trim();
+
+        if (!name) {
+          dialogError('Enter a category name.');
+          return;
+        }
+
+        if (
+          [
+            ...Object.values(TYPES).map(([label]) => label),
+            ...categories.map(category => category.name)
+          ].some(
+            existing =>
+              existing.toLocaleLowerCase() ===
+              name.toLocaleLowerCase()
+          )
+        ) {
+          dialogError('A category with that name already exists.');
+          return;
+        }
+
+        $('category-save').disabled = true;
+
+        const { error } = await sb.from('custom_categories')
+          .insert({ name });
+
+        if (error) {
+          dialogError(error.message);
+          $('category-save').disabled = false;
+          return;
+        }
+
+        await loadData();
+        closeDialog();
+        showToast('Category created.');
+        returnTo?.();
+      };
+    }
+
+    function openEditDialog(asset) {
+      const simple = [
+        'cash', 'stocks', 'crypto', 'other', 'custom'
+      ].includes(asset.category);
+
+      const selected =
+        asset.category === 'custom'
+          ? `custom:${asset.custom_category_id}`
+          : asset.category;
+
+      configureDialog({
+        eyebrow: 'Item settings',
+        title: `Edit ${asset.name}`,
+        description:
+          'Renaming preserves history. Some settings also affect ' +
+          'how earlier dates are displayed.',
+        body: `
+          ${itemFields(simple ? 'other' : asset.category, asset)}
+          <div class="notice" style="margin-top:16px">
+            Accessibility settings and fixed-deposit maturity dates
+            are current item settings. Changing them also changes
+            historical accessible-balance estimates. Net-worth
+            valuations are not changed.
+          </div>
+        `,
+        footer: `
+          <button class="button secondary" id="edit-cancel"
+                  type="button">Cancel</button>
+          <button class="button" id="edit-save"
+                  type="button">Save changes</button>
+        `
+      });
+
+      if (simple) {
+        $('form-category').value = selected;
+      }
+
+      $('edit-cancel').onclick = closeDialog;
+      $('edit-save').onclick = () => saveEdit(asset);
+      wireItemForm(simple ? 'other' : asset.category, asset);
+    }
+
+    async function saveEdit(asset) {
+      const name = $('form-name').value.trim();
+      const selected = $('form-category')?.value ?? asset.category;
+      const custom = selected.startsWith('custom:');
+
+      const shareField = $('form-share');
+      const share = shareField
+        ? parsePercent(shareField.value)
+        : null;
+
+      const maturityField = $('form-maturity');
+
+      if (
+        !name ||
+        (shareField && share === null) ||
+        (maturityField && !maturityField.value)
+      ) {
+        dialogError('Check the name and any required fields.');
+        return;
+      }
+
+      const button = $('edit-save');
+      button.disabled = true;
+      dialogError('');
+
+      try {
+        if (
+          shareField &&
+          share !== shareOn(asset, today())
+        ) {
+          const { error } = await sb
+            .from('property_ownership_changes')
+            .upsert(
+              {
+                asset_id: asset.id,
+                effective_date: today(),
+                ownership_percent: share
+              },
+              { onConflict: 'asset_id,effective_date' }
+            );
+
+          if (error) throw error;
+        }
+
+        const patch = { name };
+
+        if ($('form-category')) {
+          patch.category = custom ? 'custom' : selected;
+          patch.custom_category_id =
+            custom ? selected.slice(7) : null;
+        }
+
+        if (maturityField) {
+          patch.maturity_date = maturityField.value;
+        }
+
+        if ($('form-accessible')) {
+          patch.accessible = $('form-accessible').checked;
+        }
+
+        if ($('form-debt-access')) {
+          patch.subtract_debt_from_accessible =
+            $('form-debt-access').checked;
+        }
+
+        const { error } = await sb.from('assets')
+          .update(patch)
+          .eq('id', asset.id);
+
+        if (error) throw error;
+
+        closeDialog();
+        await loadData();
+        showToast('Item updated.');
+      } catch (error) {
+        dialogError(error.message);
+        button.disabled = false;
+        await loadData();
+      }
+    }
+
+    function openItemDetails(asset) {
+      const entries = valuations
+        .filter(entry => entry.asset_id === asset.id)
+        .reverse();
+
+      const currentEntry = latestOn(today()).get(asset.id);
+
+      configureDialog({
+        eyebrow: categoryName(asset),
+        title: asset.name,
+        description: asset.archived_on
+          ? `Archived ${asset.archived_on}. Earlier history is retained.`
+          : itemDescription(asset, currentEntry),
+        body: `
+          ${asset.archived_on ? '' : `
+            <div class="notice green" style="margin-top:17px">
+              Current contribution to net worth:
+              <strong>${
+                currentEntry
+                  ? euro(
+                      contribution(
+                        asset,
+                        currentEntry,
+                        today()
+                      )
+                    )
+                  : 'No value yet'
+              }</strong>
+            </div>
+          `}
+
+          <h3 style="margin-top:23px">Add or update a value</h3>
+
+          <div class="form-grid">
+            <div>
+              <label for="detail-date">Date</label>
+              <input id="detail-date" class="field"
+                     type="date" max="${today()}"
+                     value="${today()}">
+            </div>
+
+            <div>
+              <label for="detail-value">
+                ${
+                  asset.category === 'real_estate'
+                    ? 'Full property value (€)'
+                    : asset.category === 'debt'
+                      ? 'Amount owed (€)'
+                      : 'Value (€)'
+                }
+              </label>
+
+              <input id="detail-value" class="field"
+                     type="text" inputmode="decimal"
+                     value="${escapeHtml(
+                       displayInput(currentEntry?.value)
+                     )}">
+            </div>
+
+            ${asset.category === 'real_estate' ? `
+              <div>
+                <label for="detail-mortgage">
+                  Your mortgage (€)
+                </label>
+
+                <input id="detail-mortgage" class="field"
+                       type="text" inputmode="decimal"
+                       value="${escapeHtml(
+                         displayInput(
+                           currentEntry?.mortgage_value ?? 0
+                         )
+                       )}">
+              </div>
+            ` : ''}
+
+            <div style="align-self:end">
+              <button id="detail-save" class="button"
+                      type="button">Save value</button>
+            </div>
+          </div>
+
+          <h3 style="margin-top:27px">Value history</h3>
+          <p class="muted small">
+            Select an entry to correct or delete it.
+          </p>
+
+          <div class="history-list">
+            ${entries.length
+              ? entries.map(entry => `
+                  <div class="history-row"
+                       data-entry="${entry.id}">
+                    <div>
+                      <strong>${entry.date}</strong>
+                      <div class="muted small">
+                        ${euro(entry.value)}
+                        ${
+                          asset.category === 'real_estate'
+                            ? ` · Mortgage ${
+                                euro(entry.mortgage_value ?? 0)
+                              }`
+                            : ''
+                        }
+                      </div>
+                    </div>
+
+                    <button class="button secondary small edit-entry"
+                            type="button">Edit</button>
+                  </div>
+                `).join('')
+              : '<div class="empty">No entries yet.</div>'
+            }
+          </div>
+        `,
+        footer: `
+          ${asset.archived_on ? '' : `
+            <button id="detail-archive"
+                    class="button danger"
+                    type="button">Archive item</button>
+          `}
+          <button id="detail-close" class="button secondary"
+                  type="button">Close</button>
+        `
+      });
+
+      $('detail-close').onclick = closeDialog;
+
+      $('detail-save').onclick = async () => {
+        const date = $('detail-date').value;
+        const value = parseAmount($('detail-value').value);
+
+        const mortgage = $('detail-mortgage')
+          ? parseAmount($('detail-mortgage').value)
+          : 0;
+
+        if (
+          !date ||
+          date > today() ||
+          value === null ||
+          mortgage === null
+        ) {
+          dialogError(
+            'Enter a valid date and non-negative amounts.'
+          );
+          return;
+        }
+
+        $('detail-save').disabled = true;
+
+        try {
+          await saveValuation(asset, date, value, mortgage);
+          await loadData();
+          closeDialog();
+          showToast('Value saved.');
+        } catch (error) {
+          dialogError(error.message);
+          $('detail-save').disabled = false;
+        }
+      };
+
+      $('dialog-body').querySelector('.history-list').onclick =
+        event => {
+          const button = event.target.closest('.edit-entry');
+          const row = event.target.closest('[data-entry]');
+
+          if (!button || !row) return;
+
+          const entry = valuations.find(
+            item => item.id === row.dataset.entry
+          );
+
+          if (entry) openHistoryEditor(asset, entry);
+        };
+
+      if ($('detail-archive')) {
+        $('detail-archive').onclick = () => {
+          confirmAction({
+            title: `Archive ${asset.name}?`,
+            description:
+              'From today onward, this item will leave tracked net ' +
+              'worth. Its earlier values remain in history. Archiving ' +
+              'does not mean the asset was lost or the debt was repaid.',
+            actionLabel: 'Archive item',
+            destructive: true,
+            action: async () => {
+              const { error } = await sb.from('assets')
+                .update({ archived_on: today() })
+                .eq('id', asset.id);
+
+              if (error) throw error;
+
+              await loadData();
+              showToast('Item archived. Earlier history is retained.');
+            }
+          });
+        };
+      }
+    }
+
+    function openHistoryEditor(asset, entry) {
+      configureDialog({
+        eyebrow: 'Correct history',
+        title: asset.name,
+        description:
+          'Changing this entry will update historical totals.',
+        body: `
+          <div class="form-grid">
+            <div>
+              <label for="history-date">Date</label>
+              <input id="history-date" class="field"
+                     type="date" max="${today()}"
+                     value="${entry.date}">
+            </div>
+
+            <div>
+              <label for="history-value">
+                ${
+                  asset.category === 'real_estate'
+                    ? 'Full property value (€)'
+                    : 'Value (€)'
+                }
+              </label>
+              <input id="history-value" class="field"
+                     type="text" inputmode="decimal"
+                     value="${escapeHtml(
+                       displayInput(entry.value)
+                     )}">
+            </div>
+
+            ${asset.category === 'real_estate' ? `
+              <div>
+                <label for="history-mortgage">
+                  Your mortgage (€)
+                </label>
+                <input id="history-mortgage" class="field"
+                       type="text" inputmode="decimal"
+                       value="${escapeHtml(
+                         displayInput(entry.mortgage_value ?? 0)
+                       )}">
+              </div>
+            ` : ''}
+          </div>
+        `,
+        footer: `
+          <button id="history-delete"
+                  class="button danger"
+                  type="button">Delete entry</button>
+          <button id="history-cancel"
+                  class="button secondary"
+                  type="button">Cancel</button>
+          <button id="history-save"
+                  class="button"
+                  type="button">Save correction</button>
+        `
+      });
+
+      $('history-cancel').onclick = () => openItemDetails(asset);
+
+      $('history-save').onclick = async () => {
+        const date = $('history-date').value;
+        const value = parseAmount($('history-value').value);
+
+        const mortgage = $('history-mortgage')
+          ? parseAmount($('history-mortgage').value)
+          : 0;
+
+        if (
+          !date ||
+          date > today() ||
+          value === null ||
+          mortgage === null
+        ) {
+          dialogError(
+            'Enter a valid date and non-negative amounts.'
+          );
+          return;
+        }
+
+        $('history-save').disabled = true;
+
+        const { error } = await sb.from('valuations')
+          .update({
+            date,
+            value,
+            mortgage_value:
+              asset.category === 'real_estate'
+                ? mortgage
+                : 0
+          })
+          .eq('id', entry.id);
+
+        if (error) {
+          dialogError(error.message);
+          $('history-save').disabled = false;
+          return;
+        }
+
+        await loadData();
+        closeDialog();
+        showToast('Historical value corrected.');
+      };
+
+      $('history-delete').onclick = () => {
+        confirmAction({
+          title: `Delete the value from ${entry.date}?`,
+          description:
+            `This permanently removes this recorded value for ` +
+            `${asset.name}. Earlier and later entries remain, but ` +
+            `historical totals may change.`,
+          actionLabel: 'Delete value',
+          destructive: true,
+          action: async () => {
+            const { error } = await sb.from('valuations')
+              .delete()
+              .eq('id', entry.id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast('Historical value deleted.');
+          }
+        });
+      };
+    }
+
+    function csvCell(value) {
+      let text = String(value ?? '');
+
+      if (/^\s*[=+\-@]/.test(text)) {
         text = "'" + text;
       }
 
-      return '"' +
-        text.replace(
-          /"/g,
-          '""'
-        ) +
-        '"';
+      return `"${text.replace(/"/g, '""')}"`;
     }
 
-    $('export-btn').addEventListener(
-      'click',
-      () => {
-        if (!assets.length) {
-          setMessage(
-            'app-msg',
-            'Add an item before exporting.',
-            'error'
-          );
-          return;
-        }
-
-        const rows = [[
-          'Asset name',
-          'Category',
-          'Date',
-          'Value (EUR)'
-        ]];
-
-        for (const asset of assets) {
-          const entries =
-            valuations.filter(
-              entry =>
-                entry.asset_id ===
-                asset.id
-            );
-
-          if (!entries.length) {
-            rows.push([
-              asset.name,
-              CATEGORIES[
-                asset.category
-              ],
-              '',
-              ''
-            ]);
-          }
-
-          for (const entry of entries) {
-            rows.push([
-              asset.name,
-              CATEGORIES[
-                asset.category
-              ],
-              entry.date,
-              entry.value
-            ]);
-          }
-        }
-
-        const csv = rows
-          .map(
-            row => row
-              .map(csvCell)
-              .join(',')
-          )
-          .join('\r\n');
-
-        const blob = new Blob(
-          [
-            '\uFEFF',
-            csv
-          ],
-          {
-            type:
-              'text/csv;charset=utf-8'
-          }
-        );
-
-        const url =
-          URL.createObjectURL(blob);
-
-        const link =
-          document.createElement(
-            'a'
-          );
-
-        link.href = url;
-        link.download =
-          `wealth-tracker-${
-            today()
-          }.csv`;
-
-        document.body.appendChild(
-          link
-        );
-
-        link.click();
-        link.remove();
-
-        setTimeout(
-          () =>
-            URL.revokeObjectURL(
-              url
-            ),
-          1000
-        );
+    $('export').onclick = () => {
+      if (!assets.length) {
+        showToast('There is nothing to export.', true);
+        return;
       }
-    );
+
+      const rows = [[
+        'Display order',
+        'Item ID',
+        'Name',
+        'Category',
+        'Archived on',
+        'Accessible',
+        'Subtract debt from accessible',
+        'Fixed until',
+        'Date',
+        'Value EUR',
+        'Your mortgage EUR',
+        'Ownership percent on date',
+        'Net contribution EUR'
+      ]];
+
+      assets.forEach((asset, index) => {
+        const entries = valuations.filter(
+          entry => entry.asset_id === asset.id
+        );
+
+        for (const entry of entries.length ? entries : [null]) {
+          rows.push([
+            index + 1,
+            asset.id,
+            asset.name,
+            categoryName(asset),
+            asset.archived_on ?? '',
+            asset.accessible ? 'Yes' : 'No',
+            asset.subtract_debt_from_accessible
+              ? 'Yes'
+              : 'No',
+            asset.maturity_date ?? '',
+            entry?.date ?? '',
+            entry?.value ?? '',
+            asset.category === 'real_estate'
+              ? entry?.mortgage_value ?? ''
+              : '',
+            asset.category === 'real_estate'
+              ? shareOn(asset, entry?.date ?? today())
+              : '',
+            entry
+              ? contribution(
+                  asset,
+                  entry,
+                  entry.date
+                ).toFixed(2)
+              : ''
+          ]);
+        }
+      });
+
+      const csv = rows
+        .map(row => row.map(csvCell).join(','))
+        .join('\r\n');
+
+      const blob = new Blob(
+        ['\uFEFF', csv],
+        { type: 'text/csv;charset=utf-8' }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = `wealth-tracker-${today()}.csv`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    navigate('dashboard');
   </script>
 </body>
 </html>
