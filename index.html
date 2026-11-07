@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8f7">
+  <title>Wealth Tracker</title>
+
+  <style>
+    :root {
+      --background: #f6f8f7;
+      --surface: #fff;
+      --text: #17232b;
+      --muted: #687781;
+      --border: #e5ebe8;
+      --green: #167c5b;
+      --green-dark: #116448;
+      --green-light: #e9f6ef;
+      --red: #b44444;
+      --shadow: 0 8px 30px rgba(25, 55, 43, .045);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .hidden { display: none !important; }
+
+    .container {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      background: rgba(255, 255, 255, .92);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -.04em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      background: var(--green);
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .header-email {
+      overflow: hidden;
+      max-width: 220px;
+      color: var(--muted);
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 9px 16px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 650;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .button:hover { background: var(--green-dark); }
+    .button:disabled { opacity: .55; cursor: wait; }
+
+    .button-secondary {
+      border-color: var(--border);
+      background: #fff;
+      color: var(--text);
+    }
+
+    .button-secondary:hover { background: #f4f7f5; }
+
+    .button-danger {
+      border-color: #f0dada;
+      background: #fff;
+      color: var(--red);
+    }
+
+    .button-danger:hover { background: #fff3f3; }
+
+    .button-small {
+      min-height: 36px;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .field {
+      width: 100%;
+      min-height: 43px;
+      padding: 9px 12px;
+      border: 1px solid #dce5e1;
+      border-radius: 9px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .field:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(22, 124, 91, .12);
+    }
+
+    .field::placeholder { color: #96a29d; }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .message {
+      min-height: 20px;
+      margin: 12px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .message.error { color: var(--red); }
+    .message.success { color: var(--green); }
+
+    /* Login */
+    .auth-page {
+      display: grid;
+      place-items: center;
+      min-height: calc(100vh - 77px);
+      padding: 48px 20px;
+    }
+
+    .auth-card {
+      width: min(100%, 440px);
+      padding: 36px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .auth-card h1 {
+      margin: 10px 0 8px;
+      font-size: clamp(26px, 5vw, 32px);
+      letter-spacing: -.045em;
+      line-height: 1.2;
+    }
+
+    .auth-card > p {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-group { margin-bottom: 17px; }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .auth-buttons .button { flex: 1; }
+
+    /* Dashboard */
+    main.dashboard { padding: 36px 0 70px; }
+
+    .page-heading,
+    .section-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .page-heading { margin-bottom: 20px; }
+
+    .page-heading h1 {
+      margin: 5px 0 0;
+      font-size: clamp(27px, 4vw, 36px);
+      letter-spacing: -.055em;
+      line-height: 1.15;
+    }
+
+    .page-heading p,
+    .section-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .heading-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 215px;
+      padding: 26px;
+      background:
+        radial-gradient(circle at 90% 5%, rgba(38, 173, 123, .19), transparent 40%),
+        linear-gradient(135deg, #163e32, #102c28);
+      color: #fff;
+    }
+
+    .summary-card .label {
+      color: #b3d5c8;
+      font-size: 14px;
+    }
+
+    .networth {
+      margin: 8px 0 0;
+      font-size: clamp(35px, 5vw, 52px);
+      font-weight: 750;
+      letter-spacing: -.06em;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-bottom {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+      color: #c7e2d8;
+      font-size: 13px;
+    }
+
+    .change-pill {
+      padding: 5px 9px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .snapshot-card { padding: 25px; }
+
+    .card-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -.025em;
+    }
+
+    .snapshot-list {
+      display: grid;
+      gap: 13px;
+      margin-top: 19px;
+    }
+
+    .snapshot-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .snapshot-name {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .dot.debt { background: var(--red); }
+    .dot.stocks { background: #6885d3; }
+    .dot.real_estate { background: #d3a765; }
+    .dot.crypto { background: #a77acd; }
+    .dot.other { background: #98a5ae; }
+
+    .snapshot-value {
+      font-weight: 650;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .negative { color: var(--red); }
+
+    .chart-card,
+    .history-card,
+    .add-card {
+      padding: 25px;
+      margin-bottom: 18px;
+    }
+
+    .chart-card .section-header,
+    .history-card .section-header {
+      margin-bottom: 20px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+    }
+
+    .empty-chart {
+      display: grid;
+      place-items: center;
+      height: 230px;
+      padding: 20px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .assets-card {
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .assets-card .section-header {
+      padding: 25px 25px 18px;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    th {
+      padding: 11px 20px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: #fafcfb;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .07em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .align-right { text-align: right; }
+    .asset-name { font-weight: 650; }
+
+    .category-badge {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 7px;
+      background: #f2f5f3;
+      color: #52645c;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .row-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .row-controls .value-field { width: 115px; }
+    .row-controls .date-field { width: 146px; }
+
+    .row-controls .field {
+      min-height: 36px;
+      padding: 5px 8px;
+      font-size: 13px;
+    }
+
+    .table-empty {
+      padding: 35px 20px;
+      color: var(--muted);
+      text-align: center;
+      white-space: normal;
+    }
+
+    .add-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr auto;
+      align-items: end;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .add-grid .form-group { margin: 0; }
+    .add-card .hint { margin: 14px 0 0; }
+
+    .history-filter { width: min(240px, 100%); }
+
+    @media (max-width: 800px) {
+      .overview-grid { grid-template-columns: 1fr; }
+      .add-grid { grid-template-columns: 1fr 1fr; }
+      .add-grid .name-group { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 600px) {
+      .container { width: min(100% - 28px, 1160px); }
+      .header-inner { min-height: 66px; }
+      .header-email { display: none; }
+      main.dashboard { padding-top: 28px; }
+      .page-heading { flex-direction: column; }
+      .summary-card { min-height: 190px; }
+      .chart-card, .history-card, .snapshot-card, .add-card {
+        padding: 20px;
+      }
+      .assets-card .section-header { padding: 20px; }
+      .chart-wrap { height: 230px; }
+      .add-grid { grid-template-columns: 1fr; }
+      .add-grid .name-group { grid-column: auto; }
+      .history-card .section-header { flex-direction: column; }
+      .auth-card { padding: 27px 22px; }
+      .auth-buttons { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="Wealth Tracker home">
+        <span class="brand-icon" aria-hidden="true">↗</span>
+        <span>Wealth Tracker</span>
+      </a>
+
+      <div id="header-actions" class="header-actions hidden">
+        <span id="header-email" class="header-email"></span>
+        <button id="logout-btn" class="button button-secondary button-small"
+                type="button">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login / signup -->
+  <section id="auth-view" class="auth-page hidden">
+    <div class="auth-card">
+      <div class="eyebrow">A clearer picture of your money</div>
+      <h1>Know where you stand.</h1>
+      <p>Track your assets, debts, and net worth over time.</p>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input id="email" class="field" type="email"
+               autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" class="field" type="password"
+               autocomplete="current-password"
+               placeholder="At least 6 characters">
+      </div>
+
+      <div class="auth-buttons">
+        <button id="login-btn" class="button" type="button">Log in</button>
+        <button id="signup-btn" class="button button-secondary" type="button">
+          Create account
+        </button>
+      </div>
+
+      <p id="auth-msg" class="message" role="status"></p>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <main id="app-view" class="container dashboard hidden">
+    <div class="page-heading">
+      <div>
+        <div class="eyebrow">Your dashboard</div>
+        <h1>Your wealth, at a glance.</h1>
+        <p>Manually update values whenever you like.</p>
+      </div>
+
+      <div class="heading-actions">
+        <button id="export-btn" class="button button-secondary" type="button">
+          ↓ Export CSV
+        </button>
+        <a class="button" href="#add-asset">+ Add asset</a>
+      </div>
+    </div>
+
+    <p id="app-msg" class="message" role="status"></p>
+
+    <section class="overview-grid" aria-label="Overview">
+      <div class="card summary-card">
+        <div>
+          <div class="label">Total net worth</div>
+          <div id="networth" class="networth">—</div>
+        </div>
+        <div class="summary-bottom">
+          <span id="change-pill" class="change-pill hidden"></span>
+          <span id="change-description">
+            Add your first asset to get started
+          </span>
+        </div>
+      </div>
+
+      <div class="card snapshot-card">
+        <h2 class="card-title">Breakdown</h2>
+        <div id="breakdown" class="snapshot-list">
+          <span class="hint">Your categories will appear here.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card chart-card" aria-labelledby="progress-title">
+      <div class="section-header">
+        <div>
+          <h2 id="progress-title" class="card-title">
+            Net worth over time
+          </h2>
+          <p>Each item's last entered value is carried forward.</p>
+        </div>
+      </div>
+
+      <div id="chart-wrap" class="chart-wrap hidden">
+        <canvas id="chart" aria-label="Net worth over time chart"></canvas>
+      </div>
+
+      <div id="chart-empty" class="empty-chart">
+        Add values on at least two different dates to see your progress.
+      </div>
+    </section>
+
+    <section id="assets" class="card assets-card"
+             aria-labelledby="assets-title">
+      <div class="section-header">
+        <div>
+          <h2 id="assets-title" class="card-title">
+            Your assets &amp; debts
+          </h2>
+          <p>Enter a new value and date to update an item.</p>
+        </div>
+        <span id="asset-count" class="hint">0 items</span>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th class="align-right">Latest value</th>
+              <th>Update value</th>
+              <th aria-label="Actions"></th>
+            </tr>
+          </thead>
+          <tbody id="asset-rows">
+            <tr>
+              <td colspan="5" class="table-empty">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="add-asset" class="card add-card"
+             aria-labelledby="add-title">
+      <h2 id="add-title" class="card-title">
+        Add an asset or debt
+      </h2>
+
+      <form id="add-form">
+        <div class="add-grid">
+          <div class="form-group name-group">
+            <label for="new-name">Name</label>
+            <input id="new-name" class="field"
+                   placeholder="e.g. Checking account"
+                   maxlength="100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-cat">Category</label>
+            <select id="new-cat" class="field"></select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-value">Current value (€)</label>
+            <input id="new-value" class="field" type="number"
+                   min="0" step="0.01" placeholder="Optional">
+          </div>
+
+          <button id="add-btn" class="button" type="submit">
+            Add item
+          </button>
+        </div>
+      </form>
+
+      <p class="hint">
+        For a mortgage or loan, choose <strong>Debt</strong> and enter
+        the amount owed as a positive number. It will be subtracted.
+      </p>
+    </section>
+
+    <section class="card history-card" aria-labelledby="history-title">
+      <div class="section-header">
+        <div>
+          <h2 id="history-title" class="card-title">
+            Value history
+          </h2>
+          <p>Correct or remove a previously entered value.</p>
+        </div>
+
+        <div>
+          <label for="history-asset">Show entries for</label>
+          <select id="history-asset"
+                  class="field history-filter"></select>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Value (€)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-rows">
+            <tr>
+              <td colspan="3" class="table-empty">
+                Choose an item to view its history.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    const SUPABASE_URL =
+      'https://ipdvmhinxjwcxuwrwiad.supabase.co';
+
+    const SUPABASE_KEY =
+      'sb_publishable_sBDt7t7eY6xN5FFMlyi7RA_vUFN1U5K';
+
+    const CURRENCY = 'EUR';
+
+    const sb = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const CATEGORIES = {
+      cash: 'Cash',
+      stocks: 'Stocks',
+      crypto: 'Crypto',
+      real_estate: 'Real estate',
+      other: 'Other',
+      debt: 'Debt'
+    };
+
+    let assets = [];
+    let valuations = [];
+    let chart = null;
+    let activeUserId = null;
+    let loadVersion = 0;
+
+    const $ = id => document.getElementById(id);
+
+    const fmt = value => Number(value).toLocaleString(
+      undefined,
+      {
+        style: 'currency',
+        currency: CURRENCY
+      }
+    );
+
+    function today() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function previousMonthEnd() {
+      const date = new Date();
+      const end = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        0
+      );
+
+      const year = end.getFullYear();
+      const month = String(end.getMonth() + 1).padStart(2, '0');
+      const day = String(end.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(
+        /[&<>"']/g,
+        character => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[character]
+      );
+    }
+
+    function setMessage(elementId, text, type = '') {
+      const element = $(elementId);
+      element.textContent = text;
+      element.className = `message ${type}`.trim();
+    }
+
+    function validAmount(value) {
+      return value !== '' &&
+        Number.isFinite(Number(value)) &&
+        Number(value) >= 0;
+    }
+
+    function signedValue(asset, value) {
+      return asset.category === 'debt' ? -value : value;
+    }
+
+    $('new-cat').innerHTML = Object.entries(CATEGORIES)
+      .map(([key, label]) =>
+        `<option value="${key}">${label}</option>`
+      )
+      .join('');
+
+    // Authentication
+    sb.auth.onAuthStateChange((_event, session) => {
+      const userId = session?.user?.id ?? null;
+
+      $('auth-view').classList.toggle(
+        'hidden',
+        Boolean(userId)
+      );
+
+      $('app-view').classList.toggle(
+        'hidden',
+        !userId
+      );
+
+      $('header-actions').classList.toggle(
+        'hidden',
+        !userId
+      );
+
+      if (!userId) {
+        activeUserId = null;
+        loadVersion++;
+        assets = [];
+        valuations = [];
+
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+
+        return;
+      }
+
+      $('header-email').textContent =
+        session.user.email ?? '';
+
+      if (userId !== activeUserId) {
+        activeUserId = userId;
+        setTimeout(loadData, 0);
+      }
+    });
+
+    async function authenticate(mode) {
+      const email = $('email').value.trim();
+      const password = $('password').value;
+
+      if (!email || !password) {
+        setMessage(
+          'auth-msg',
+          'Enter your email and password.',
+          'error'
+        );
+        return;
+      }
+
+      $('login-btn').disabled = true;
+      $('signup-btn').disabled = true;
+      setMessage('auth-msg', '');
+
+      try {
+        const result = mode === 'signup'
+          ? await sb.auth.signUp({ email, password })
+          : await sb.auth.signInWithPassword({
+              email,
+              password
+            });
+
+        if (result.error) {
+          setMessage(
+            'auth-msg',
+            result.error.message,
+            'error'
+          );
+        } else if (
+          mode === 'signup' &&
+          !result.data.session
+        ) {
+          setMessage(
+            'auth-msg',
+            'Check your email to confirm your account, then log in.',
+            'success'
+          );
+        }
+      } catch (error) {
+        setMessage(
+          'auth-msg',
+          error.message,
+          'error'
+        );
+      } finally {
+        $('login-btn').disabled = false;
+        $('signup-btn').disabled = false;
+      }
+    }
+
+    $('login-btn').addEventListener(
+      'click',
+      () => authenticate('login')
+    );
+
+    $('signup-btn').addEventListener(
+      'click',
+      () => authenticate('signup')
+    );
+
+    $('password').addEventListener(
+      'keydown',
+      event => {
+        if (event.key === 'Enter') {
+          authenticate('login');
+        }
+      }
+    );
+
+    $('logout-btn').addEventListener(
+      'click',
+      async () => {
+        const { error } = await sb.auth.signOut();
+
+        if (error) {
+          setMessage(
+            'app-msg',
+            error.message,
+            'error'
+          );
+        }
+      }
+    );
+
+    // Load data from Supabase.
+    async function loadData() {
+      const version = ++loadVersion;
+      const userId = activeUserId;
+
+      if (!userId) return;
+
+      setMessage('app-msg', 'Loading your data...');
+
+      const [assetResult, valuationResult] =
+        await Promise.all([
+          sb.from('assets')
+            .select('*')
+            .order('created_at'),
+
+          sb.from('valuations')
+            .select('*')
+            .order('date')
+        ]);
+
+      if (
+        version !== loadVersion ||
+        userId !== activeUserId
+      ) {
+        return;
+      }
+
+      if (
+        assetResult.error ||
+        valuationResult.error
+      ) {
+        setMessage(
+          'app-msg',
+          (
+            assetResult.error ||
+            valuationResult.error
+          ).message,
+          'error'
+        );
+        return;
+      }
+
+      assets = assetResult.data;
+      valuations = valuationResult.data;
+
+      setMessage('app-msg', '');
+      render();
+    }
+
+    function valuationsThrough(date) {
+      return valuations.filter(
+        valuation => valuation.date <= date
+      );
+    }
+
+    function latestValuesAsOf(date) {
+      const latest = {};
+
+      // Supabase returns valuations ordered by date.
+      // Later values overwrite earlier values.
+      for (const valuation of valuationsThrough(date)) {
+        latest[valuation.asset_id] =
+          Number(valuation.value);
+      }
+
+      return latest;
+    }
+
+    function netWorthFromValues(values) {
+      return assets.reduce(
+        (total, asset) =>
+          total + signedValue(
+            asset,
+            values[asset.id] ?? 0
+          ),
+        0
+      );
+    }
+
+    function timeline() {
+      const visibleValuations =
+        valuationsThrough(today());
+
+      const dates = [
+        ...new Set(
+          visibleValuations.map(
+            valuation => valuation.date
+          )
+        )
+      ].sort();
+
+      const assetById = new Map(
+        assets.map(asset => [asset.id, asset])
+      );
+
+      const currentValues = {};
+      let index = 0;
+
+      return dates.map(date => {
+        while (
+          index < visibleValuations.length &&
+          visibleValuations[index].date <= date
+        ) {
+          const valuation =
+            visibleValuations[index];
+
+          currentValues[valuation.asset_id] =
+            Number(valuation.value);
+
+          index++;
+        }
+
+        const total = Object.entries(
+          currentValues
+        ).reduce(
+          (sum, [assetId, value]) => {
+            const asset =
+              assetById.get(assetId);
+
+            return asset
+              ? sum + signedValue(asset, value)
+              : sum;
+          },
+          0
+        );
+
+        return { date, total };
+      });
+    }
+
+    function render() {
+      const latest =
+        latestValuesAsOf(today());
+
+      const netWorth =
+        netWorthFromValues(latest);
+
+      const byCategory = {};
+
+      for (const asset of assets) {
+        const value = latest[asset.id] ?? 0;
+
+        byCategory[asset.category] =
+          (byCategory[asset.category] ?? 0) +
+          value;
+      }
+
+      $('networth').textContent =
+        fmt(netWorth);
+
+      $('asset-count').textContent =
+        `${assets.length} ${
+          assets.length === 1
+            ? 'item'
+            : 'items'
+        }`;
+
+      renderMonthlyChange(
+        latest,
+        netWorth
+      );
+
+      renderBreakdown(byCategory);
+      renderAssetRows(latest);
+      renderHistorySelector();
+      renderHistoryRows();
+      renderChart();
+    }
+
+    function renderMonthlyChange(
+      latest,
+      currentNetWorth
+    ) {
+      const previous =
+        latestValuesAsOf(
+          previousMonthEnd()
+        );
+
+      const allItemsHaveCurrentValues =
+        assets.length > 0 &&
+        assets.every(
+          asset =>
+            latest[asset.id] !== undefined
+        );
+
+      const allItemsHavePreviousValues =
+        assets.length > 0 &&
+        assets.every(
+          asset =>
+            previous[asset.id] !== undefined
+        );
+
+      if (
+        !allItemsHaveCurrentValues ||
+        !allItemsHavePreviousValues
+      ) {
+        $('change-pill').classList.add(
+          'hidden'
+        );
+
+        $('change-description').textContent =
+          assets.length
+            ? 'Monthly comparison available once every item has a value from before this month'
+            : 'Add your first asset to get started';
+
+        return;
+      }
+
+      const previousNetWorth =
+        netWorthFromValues(previous);
+
+      const change =
+        currentNetWorth -
+        previousNetWorth;
+
+      $('change-pill').textContent =
+        `${change >= 0 ? '+' : ''}${
+          fmt(change)
+        }`;
+
+      $('change-pill').classList.remove(
+        'hidden'
+      );
+
+      $('change-description').textContent =
+        'since the end of last month';
+    }
+
+    function renderBreakdown(
+      byCategory
+    ) {
+      const categories =
+        Object.entries(byCategory);
+
+      $('breakdown').innerHTML =
+        categories.length
+          ? categories.map(
+              ([category, value]) => `
+                <div class="snapshot-row">
+                  <span class="snapshot-name">
+                    <span class="dot ${category}"></span>
+                    ${CATEGORIES[category]}
+                  </span>
+                  <span class="snapshot-value ${
+                    category === 'debt'
+                      ? 'negative'
+                      : ''
+                  }">
+                    ${
+                      category === 'debt'
+                        ? '−'
+                        : ''
+                    }${fmt(value)}
+                  </span>
+                </div>
+              `
+            ).join('')
+          : '<span class="hint">Your categories will appear here.</span>';
+    }
+
+    function renderAssetRows(
+      latest
+    ) {
+      $('asset-rows').innerHTML =
+        assets.length
+          ? assets.map(asset => {
+              const latestValue =
+                latest[asset.id];
+
+              return `
+                <tr data-asset-id="${
+                  asset.id
+                }">
+                  <td class="asset-name">
+                    ${escapeHtml(asset.name)}
+                  </td>
+
+                  <td>
+                    <span class="category-badge">
+                      ${
+                        CATEGORIES[
+                          asset.category
+                        ]
+                      }
+                    </span>
+                  </td>
+
+                  <td class="align-right ${
+                    asset.category === 'debt'
+                      ? 'negative'
+                      : ''
+                  }">
+                    ${
+                      latestValue ===
+                      undefined
+                        ? '—'
+                        : fmt(latestValue)
+                    }
+                  </td>
+
+                  <td>
+                    <div class="row-controls">
+                      <input
+                        class="field value-field"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="New value"
+                        aria-label="New value for ${
+                          escapeHtml(
+                            asset.name
+                          )
+                        }">
+
+                      <input
+                        class="field date-field"
+                        type="date"
+                        max="${today()}"
+                        value="${today()}"
+                        aria-label="Date for ${
+                          escapeHtml(
+                            asset.name
+                          )
+                        }">
+
+                      <button
+                        class="button button-small save-btn"
+                        type="button">
+                        Save
+                      </button>
+                    </div>
+                  </td>
+
+                  <td>
+                    <button
+                      class="button button-small button-danger delete-btn"
+                      type="button"
+                      aria-label="Delete ${
+                        escapeHtml(
+                          asset.name
+                        )
+                      }">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')
+          : `
+              <tr>
+                <td colspan="5"
+                    class="table-empty">
+                  Nothing here yet.
+                  Add your first asset or debt below.
+                </td>
+              </tr>
+            `;
+    }
+
+    function renderHistorySelector() {
+      const selector =
+        $('history-asset');
+
+      const selected =
+        selector.value;
+
+      selector.innerHTML =
+        '<option value="">Choose an item</option>' +
+        assets.map(
+          asset => `
+            <option value="${asset.id}">
+              ${escapeHtml(asset.name)}
+            </option>
+          `
+        ).join('');
+
+      if (
+        assets.some(
+          asset =>
+            asset.id === selected
+        )
+      ) {
+        selector.value = selected;
+      } else if (
+        assets.length > 0
+      ) {
+        selector.value =
+          assets[0].id;
+      }
+    }
+
+    function renderHistoryRows() {
+      const assetId =
+        $('history-asset').value;
+
+      const entries = valuations
+        .filter(
+          valuation =>
+            valuation.asset_id ===
+            assetId
+        )
+        .sort(
+          (a, b) =>
+            b.date.localeCompare(
+              a.date
+            )
+        );
+
+      $('history-rows').innerHTML =
+        entries.length
+          ? entries.map(
+              entry => `
+                <tr data-valuation-id="${
+                  entry.id
+                }">
+                  <td>
+                    <input
+                      class="field date-field"
+                      type="date"
+                      max="${today()}"
+                      value="${
+                        entry.date
+                      }"
+                      aria-label="Entry date">
+                  </td>
+
+                  <td>
+                    <input
+                      class="field value-field"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="${
+                        entry.value
+                      }"
+                      aria-label="Entry value">
+                  </td>
+
+                  <td>
+                    <div class="row-controls">
+                      <button
+                        class="button button-small history-save-btn"
+                        type="button">
+                        Save
+                      </button>
+
+                      <button
+                        class="button button-small button-danger history-delete-btn"
+                        type="button">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `
+            ).join('')
+          : `
+              <tr>
+                <td colspan="3"
+                    class="table-empty">
+                  ${
+                    assetId
+                      ? 'No values recorded for this item yet.'
+                      : 'Choose an item to view its history.'
+                  }
+                </td>
+              </tr>
+            `;
+    }
+
+    $('history-asset').addEventListener(
+      'change',
+      renderHistoryRows
+    );
+
+    function renderChart() {
+      const points = timeline();
+
+      if (chart) {
+        chart.destroy();
+        chart = null;
+      }
+
+      const hasChart =
+        points.length >= 2;
+
+      $('chart-wrap').classList.toggle(
+        'hidden',
+        !hasChart
+      );
+
+      $('chart-empty').classList.toggle(
+        'hidden',
+        hasChart
+      );
+
+      if (!hasChart) return;
+
+      chart = new Chart(
+        $('chart'),
+        {
+          type: 'line',
+
+          data: {
+            labels: points.map(
+              point => point.date
+            ),
+
+            datasets: [{
+              data: points.map(
+                point => point.total
+              ),
+              borderColor:
+                '#167c5b',
+              backgroundColor:
+                'rgba(22, 124, 91, .09)',
+              borderWidth: 3,
+              pointBackgroundColor:
+                '#167c5b',
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              tension: .25,
+              fill: true
+            }]
+          },
+
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+              intersect: false,
+              mode: 'index'
+            },
+
+            plugins: {
+              legend: {
+                display: false
+              },
+
+              tooltip: {
+                callbacks: {
+                  label: context =>
+                    `Net worth: ${
+                      fmt(
+                        context.parsed.y
+                      )
+                    }`
+                }
+              }
+            },
+
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+
+                ticks: {
+                  maxTicksLimit: 6,
+                  color: '#687781'
+                }
+              },
+
+              y: {
+                grid: {
+                  color: '#edf1ee'
+                },
+
+                border: {
+                  display: false
+                },
+
+                ticks: {
+                  color: '#687781',
+
+                  callback:
+                    value => fmt(value)
+                }
+              }
+            }
+          }
+        }
+      );
+    }
+
+    // Add an item.
+    $('add-form').addEventListener(
+      'submit',
+      async event => {
+        event.preventDefault();
+
+        const name =
+          $('new-name').value.trim();
+
+        const category =
+          $('new-cat').value;
+
+        const inputValue =
+          $('new-value').value;
+
+        if (!name) {
+          setMessage(
+            'app-msg',
+            'Enter a name for the item.',
+            'error'
+          );
+          return;
+        }
+
+        if (
+          inputValue !== '' &&
+          !validAmount(inputValue)
+        ) {
+          setMessage(
+            'app-msg',
+            'Enter a value of zero or more.',
+            'error'
+          );
+          return;
+        }
+
+        $('add-btn').disabled = true;
+        setMessage('app-msg', '');
+
+        try {
+          const {
+            data: asset,
+            error
+          } = await sb
+            .from('assets')
+            .insert({
+              name,
+              category
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          let valueError = null;
+
+          if (inputValue !== '') {
+            const result = await sb
+              .from('valuations')
+              .insert({
+                asset_id: asset.id,
+                value: Number(
+                  inputValue
+                ),
+                date: today()
+              });
+
+            valueError =
+              result.error;
+          }
+
+          $('add-form').reset();
+          await loadData();
+
+          if (valueError) {
+            setMessage(
+              'app-msg',
+              `Item added, but its value could not be saved: ${
+                valueError.message
+              }`,
+              'error'
+            );
+          }
+        } catch (error) {
+          setMessage(
+            'app-msg',
+            error.message,
+            'error'
+          );
+        } finally {
+          $('add-btn').disabled =
+            false;
+        }
+      }
+    );
+
+    // Save a new value or delete an entire item.
+    $('asset-rows').addEventListener(
+      'click',
+      async event => {
+        const button =
+          event.target.closest(
+            'button'
+          );
+
+        const row =
+          event.target.closest(
+            'tr[data-asset-id]'
+          );
+
+        if (!button || !row) return;
+
+        const assetId =
+          row.dataset.assetId;
+
+        if (
+          button.classList.contains(
+            'save-btn'
+          )
+        ) {
+          const value =
+            row.querySelector(
+              '.value-field'
+            ).value;
+
+          const date =
+            row.querySelector(
+              '.date-field'
+            ).value;
+
+          if (
+            !validAmount(value) ||
+            !date ||
+            date > today()
+          ) {
+            setMessage(
+              'app-msg',
+              'Enter a value of zero or more and select a date no later than today.',
+              'error'
+            );
+            return;
+          }
+
+          button.disabled = true;
+
+          const { error } = await sb
+            .from('valuations')
+            .upsert(
+              {
+                asset_id: assetId,
+                value: Number(value),
+                date
+              },
+              {
+                onConflict:
+                  'asset_id,date'
+              }
+            );
+
+          if (error) {
+            setMessage(
+              'app-msg',
+              error.message,
+              'error'
+            );
+
+            button.disabled =
+              false;
+          } else {
+            await loadData();
+          }
+        }
+
+        if (
+          button.classList.contains(
+            'delete-btn'
+          )
+        ) {
+          const asset =
+            assets.find(
+              item =>
+                item.id === assetId
+            );
+
+          if (!asset) return;
+
+          if (!confirm(
+            `Delete "${asset.name}" and its entire value history? This cannot be undone.`
+          )) {
+            return;
+          }
+
+          button.disabled = true;
+
+          const { error } = await sb
+            .from('assets')
+            .delete()
+            .eq('id', assetId);
+
+          if (error) {
+            setMessage(
+              'app-msg',
+              error.message,
+              'error'
+            );
+
+            button.disabled =
+              false;
+          } else {
+            await loadData();
+          }
+        }
+      }
+    );
+
+    // Correct or remove a historical value.
+    $('history-rows').addEventListener(
+      'click',
+      async event => {
+        const button =
+          event.target.closest(
+            'button'
+          );
+
+        const row =
+          event.target.closest(
+            'tr[data-valuation-id]'
+          );
+
+        if (!button || !row) return;
+
+        const entryId =
+          row.dataset.valuationId;
+
+        if (
+          button.classList.contains(
+            'history-save-btn'
+          )
+        ) {
+          const date =
+            row.querySelector(
+              '.date-field'
+            ).value;
+
+          const value =
+            row.querySelector(
+              '.value-field'
+            ).value;
+
+          if (
+            !date ||
+            date > today() ||
+            !validAmount(value)
+          ) {
+            setMessage(
+              'app-msg',
+              'Enter a valid date no later than today and a value of zero or more.',
+              'error'
+            );
+            return;
+          }
+
+          button.disabled = true;
+
+          const { error } = await sb
+            .from('valuations')
+            .update({
+              date,
+              value: Number(value)
+            })
+            .eq('id', entryId);
+
+          if (error) {
+            setMessage(
+              'app-msg',
+              error.message,
+              'error'
+            );
+
+            button.disabled =
+              false;
+          } else {
+            await loadData();
+          }
+        }
+
+        if (
+          button.classList.contains(
+            'history-delete-btn'
+          )
+        ) {
+          if (!confirm(
+            'Delete this value entry? This cannot be undone.'
+          )) {
+            return;
+          }
+
+          button.disabled = true;
+
+          const { error } = await sb
+            .from('valuations')
+            .delete()
+            .eq('id', entryId);
+
+          if (error) {
+            setMessage(
+              'app-msg',
+              error.message,
+              'error'
+            );
+
+            button.disabled =
+              false;
+          } else {
+            await loadData();
+          }
+        }
+      }
+    );
+
+    // Download assets and their valuation history.
+    // The CSV can be opened in Excel or another spreadsheet.
+    function csvCell(value) {
+      let text = String(
+        value ?? ''
+      );
+
+      // Prevent spreadsheet formulas in user-entered names.
+      if (
+        /^[\s]*[=+\-@]/.test(text)
+      ) {
+        text = "'" + text;
+      }
+
+      return '"' +
+        text.replace(
+          /"/g,
+          '""'
+        ) +
+        '"';
+    }
+
+    $('export-btn').addEventListener(
+      'click',
+      () => {
+        if (!assets.length) {
+          setMessage(
+            'app-msg',
+            'Add an item before exporting.',
+            'error'
+          );
+          return;
+        }
+
+        const rows = [[
+          'Asset name',
+          'Category',
+          'Date',
+          'Value (EUR)'
+        ]];
+
+        for (const asset of assets) {
+          const entries =
+            valuations.filter(
+              entry =>
+                entry.asset_id ===
+                asset.id
+            );
+
+          if (!entries.length) {
+            rows.push([
+              asset.name,
+              CATEGORIES[
+                asset.category
+              ],
+              '',
+              ''
+            ]);
+          }
+
+          for (const entry of entries) {
+            rows.push([
+              asset.name,
+              CATEGORIES[
+                asset.category
+              ],
+              entry.date,
+              entry.value
+            ]);
+          }
+        }
+
+        const csv = rows
+          .map(
+            row => row
+              .map(csvCell)
+              .join(',')
+          )
+          .join('\r\n');
+
+        const blob = new Blob(
+          [
+            '\uFEFF',
+            csv
+          ],
+          {
+            type:
+              'text/csv;charset=utf-8'
+          }
+        );
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const link =
+          document.createElement(
+            'a'
+          );
+
+        link.href = url;
+        link.download =
+          `wealth-tracker-${
+            today()
+          }.csv`;
+
+        document.body.appendChild(
+          link
+        );
+
+        link.click();
+        link.remove();
+
+        setTimeout(
+          () =>
+            URL.revokeObjectURL(
+              url
+            ),
+          1000
+        );
+      }
+    );
+  </script>
+</body>
+</html>
