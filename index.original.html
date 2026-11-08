@@ -1,0 +1,4754 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8f7">
+  <title>Wealth Tracker</title>
+
+  <style>
+    :root {
+      --bg:#f6f8f7;
+      --card:#fff;
+      --ink:#182a22;
+      --muted:#66776d;
+      --line:#e1eae4;
+      --green:#167453;
+      --soft:#eaf5ee;
+      --red:#a9404d;
+      --amber:#9a6818;
+      --shadow:0 10px 35px #1437230b;
+    }
+
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+
+    button,input,select { font:inherit; }
+    button { cursor:pointer; }
+    a { color:var(--green); }
+    .hidden,[hidden] { display:none!important; }
+
+    :focus-visible {
+      outline:3px solid #8bceaa;
+      outline-offset:2px;
+    }
+
+    .shell {
+      width:min(1120px,calc(100% - 30px));
+      margin:auto;
+    }
+
+    header {
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:#fffffff2;
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(12px);
+    }
+
+    .header-inner {
+      min-height:68px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+    }
+
+    .brand {
+      color:var(--ink);
+      text-decoration:none;
+      font-weight:800;
+      font-size:18px;
+    }
+
+    .brand-mark {
+      display:inline-grid;
+      place-items:center;
+      width:35px;
+      height:35px;
+      margin-right:8px;
+      border-radius:10px;
+      background:var(--green);
+      color:white;
+      font-size:21px;
+    }
+
+    .header-right {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .muted { color:var(--muted); }
+    .small { font-size:12px; }
+    h1,h2,h3,p { margin-top:0; }
+
+    h1 {
+      margin-bottom:5px;
+      font-size:clamp(27px,4vw,37px);
+      letter-spacing:-.05em;
+    }
+
+    h2 {
+      margin-bottom:5px;
+      font-size:18px;
+      letter-spacing:-.025em;
+    }
+
+    h3 {
+      margin-bottom:5px;
+      font-size:15px;
+    }
+
+    p { margin-bottom:0; }
+
+    label {
+      display:block;
+      margin-bottom:5px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .eyebrow {
+      color:var(--green);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+
+    .button {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:41px;
+      padding:8px 14px;
+      border:1px solid var(--green);
+      border-radius:10px;
+      background:var(--green);
+      color:white;
+      font-weight:650;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    .button:hover:not(:disabled) { filter:brightness(.92); }
+    .button:disabled { opacity:.55; cursor:wait; }
+
+    .button.secondary {
+      background:white;
+      border-color:var(--line);
+      color:var(--ink);
+    }
+
+    .button.danger {
+      background:white;
+      border-color:#efcdd2;
+      color:var(--red);
+    }
+
+    .button.small {
+      min-height:34px;
+      padding:5px 10px;
+      font-size:12px;
+    }
+
+    .field {
+      width:100%;
+      min-height:42px;
+      padding:8px 10px;
+      border:1px solid #cadbd0;
+      border-radius:9px;
+      background:white;
+      color:var(--ink);
+    }
+
+    .field[aria-invalid="true"] {
+      border-color:var(--red);
+    }
+
+    .card {
+      min-width:0;
+      padding:23px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+    }
+
+    .stack { display:grid; gap:17px; }
+
+    .row {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:15px;
+    }
+
+    .actions {
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    main { padding:30px 0 70px; }
+
+    .nav {
+      display:flex;
+      gap:5px;
+      width:max-content;
+      max-width:100%;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:white;
+      overflow:auto;
+    }
+
+    .nav button {
+      padding:8px 14px;
+      border:0;
+      border-radius:8px;
+      background:transparent;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .nav button.active {
+      background:var(--soft);
+      color:var(--green);
+    }
+
+    .overview {
+      display:grid;
+      grid-template-columns:1.3fr 1fr 1fr;
+      gap:16px;
+    }
+
+    .hero {
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:178px;
+      background:linear-gradient(125deg,#18503b,#102e27);
+      color:white;
+    }
+
+    .hero .muted { color:#c7dfd0; }
+
+    .big {
+      margin-top:8px;
+      font-size:clamp(32px,4vw,46px);
+      font-weight:760;
+      letter-spacing:-.06em;
+      overflow-wrap:anywhere;
+    }
+
+    .metric {
+      margin:14px 0 4px;
+      font-size:clamp(25px,3vw,31px);
+      font-weight:750;
+      letter-spacing:-.04em;
+      overflow-wrap:anywhere;
+    }
+
+    .two {
+      display:grid;
+      grid-template-columns:1.3fr 1fr;
+      gap:16px;
+    }
+
+    .chartbox {
+      height:270px;
+      margin-top:17px;
+    }
+
+    .empty {
+      padding:24px;
+      border:1px dashed var(--line);
+      border-radius:12px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    .notice {
+      padding:11px 13px;
+      border-radius:9px;
+      background:#fff3dc;
+      color:#805316;
+      font-size:12px;
+    }
+
+    .notice.green {
+      background:var(--soft);
+      color:#165d41;
+    }
+
+    .notice + .notice { margin-top:10px; }
+
+    .line {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 0;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+    }
+
+    .line:last-child { border-bottom:0; }
+    .negative { color:var(--red); }
+
+    .asset-row {
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto auto;
+      align-items:center;
+      gap:14px;
+      padding:15px 0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .asset-row:last-child { border-bottom:0; }
+    .asset-row strong { display:block; }
+
+    .asset-row .amount {
+      text-align:right;
+      font-weight:750;
+      white-space:nowrap;
+    }
+
+    .drag,.move {
+      border:0;
+      background:transparent;
+      color:var(--muted);
+    }
+
+    .drag {
+      font-size:20px;
+      cursor:grab;
+      touch-action:none;
+    }
+
+    .move:disabled { opacity:.25; }
+    .sort-ghost { background:var(--soft); }
+
+    .progress {
+      height:9px;
+      margin:18px 0;
+      background:#edf1ed;
+      border-radius:99px;
+      overflow:hidden;
+    }
+
+    .progress span {
+      display:block;
+      height:100%;
+      background:var(--green);
+      transition:width .2s;
+    }
+
+    .review {
+      padding:15px 0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .review:last-child { border:0; }
+
+    .form-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .full { grid-column:1/-1; }
+
+    .check-label {
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      font-size:13px;
+      font-weight:550;
+    }
+
+    .check-label input {
+      flex:none;
+      width:17px;
+      height:17px;
+      margin-top:2px;
+    }
+
+    .error {
+      color:var(--red);
+      font-size:12px;
+      min-height:18px;
+    }
+
+    .auth {
+      width:min(430px,calc(100% - 30px));
+      margin:9vh auto;
+    }
+
+    dialog {
+      width:min(620px,calc(100% - 24px));
+      max-height:88vh;
+      padding:0;
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:0 22px 85px #122c2440;
+      overflow:auto;
+    }
+
+    dialog::backdrop {
+      background:#15291caa;
+      backdrop-filter:blur(3px);
+    }
+
+    .dialog-inner { padding:24px; }
+
+    .dialog-footer {
+      display:flex;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:18px;
+    }
+
+    .type-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+      margin-top:17px;
+    }
+
+    .type {
+      padding:13px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#f9fbf9;
+      text-align:left;
+    }
+
+    .type:hover,.type.selected {
+      border-color:var(--green);
+      background:var(--soft);
+    }
+
+    .type strong { display:block; }
+
+    .history-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:11px 0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .history-row:last-child { border:0; }
+
+    .history-row > span {
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .toast {
+      position:fixed;
+      z-index:100;
+      right:18px;
+      bottom:18px;
+      width:min(380px,calc(100% - 36px));
+      padding:13px 16px;
+      border-radius:11px;
+      background:#183b2e;
+      color:white;
+      box-shadow:0 14px 40px #0003;
+      font-size:13px;
+    }
+
+    .toast.bad { background:#823344; }
+
+    /* Dashboard transparency */
+    .transparency-list {
+      display:grid;
+      gap:9px;
+    }
+
+    .transparency-item {
+      padding:11px 13px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fafcfb;
+    }
+
+    .transparency-item .row {
+      align-items:baseline;
+    }
+
+    .transparency-item p {
+      margin-top:4px;
+    }
+
+    .status {
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:7px;
+      background:var(--soft);
+      color:var(--green);
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .status.warning {
+      background:#fff3dc;
+      color:var(--amber);
+    }
+
+    .category-details {
+      border-bottom:1px solid var(--line);
+    }
+
+    .category-details:last-child {
+      border-bottom:0;
+    }
+
+    .category-details summary {
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:15px;
+      padding:13px 0;
+      cursor:pointer;
+      font-weight:700;
+      list-style:none;
+    }
+
+    .category-details summary::-webkit-details-marker {
+      display:none;
+    }
+
+    .category-details summary::before {
+      content:"▸";
+      color:var(--green);
+    }
+
+    .category-details[open] summary::before {
+      content:"▾";
+    }
+
+    .category-details summary .category-name {
+      flex:1;
+    }
+
+    .category-items {
+      padding:0 0 13px 20px;
+    }
+
+    .change-group {
+      margin-top:17px;
+    }
+
+    .change-group h3 {
+      margin-bottom:4px;
+    }
+
+    @media(max-width:850px) {
+      .overview { grid-template-columns:1fr 1fr; }
+      .hero { grid-column:1/-1; }
+      .two { grid-template-columns:1fr; }
+    }
+
+    @media(max-width:600px) {
+      .header-email { display:none; }
+      .row { flex-direction:column; }
+      .overview { grid-template-columns:1fr; }
+      .hero { grid-column:auto; }
+
+      .asset-row {
+        grid-template-columns:auto minmax(0,1fr) auto;
+      }
+
+      .asset-row .actions { grid-column:2/-1; }
+      .move { display:none; }
+      .form-grid { grid-template-columns:1fr; }
+      .full { grid-column:auto; }
+      .type-grid { grid-template-columns:1fr 1fr; }
+
+      .history-row {
+        align-items:flex-start;
+        flex-wrap:wrap;
+      }
+
+      .transparency-item .row {
+        flex-direction:row;
+        flex-wrap:wrap;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      * {
+        scroll-behavior:auto!important;
+        transition:none!important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="shell header-inner">
+    <a href="#" class="brand" id="brand">
+      <span class="brand-mark">↗</span>Wealth Tracker
+    </a>
+
+    <div id="header-right" class="header-right hidden">
+      <span id="header-email" class="header-email muted small"></span>
+
+      <button id="logout" class="button secondary small"
+              type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<section id="auth" class="card auth hidden">
+  <div class="eyebrow">Simple wealth tracking</div>
+  <h1>Know where you stand.</h1>
+  <p class="muted">Your assets, debts and progress in one place.</p>
+
+  <div class="form-grid">
+    <div class="full">
+      <label for="email">Email</label>
+      <input id="email" class="field" type="email" autocomplete="email">
+    </div>
+
+    <div class="full">
+      <label for="password">Password</label>
+      <input id="password" class="field" type="password"
+             autocomplete="current-password">
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:18px">
+    <button id="login" class="button" type="button">Log in</button>
+    <button id="signup" class="button secondary"
+            type="button">Create account</button>
+  </div>
+
+  <p id="auth-error" class="error" role="alert"></p>
+</section>
+
+<main id="app" class="shell stack hidden">
+  <div class="row">
+    <div>
+      <div class="eyebrow">Your finances</div>
+      <h1>Your wealth, clearly.</h1>
+      <p class="muted">
+        Manual values, useful insights. All amounts in euros.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button id="export" class="button secondary"
+              type="button">↓ Export CSV</button>
+      <button id="open-add" class="button"
+              type="button">+ Add item</button>
+    </div>
+  </div>
+
+  <nav id="nav" class="nav" aria-label="Main navigation">
+    <button data-view="dashboard" type="button">Dashboard</button>
+    <button data-view="items" type="button">Items</button>
+    <button data-view="checkin" type="button">Check-in</button>
+  </nav>
+
+  <section id="dashboard" class="stack hidden"
+           aria-label="Dashboard">
+    <div id="historical" class="notice hidden">
+      <strong>Historical view.</strong>
+      Values are estimates using the last known entry.
+      The check-in always records today’s values.
+
+      <button id="today-button" class="button secondary small"
+              type="button">Return to today</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <h2>Where you stand</h2>
+        <p class="muted small">
+          Mortgage projections are estimates, not bank statements.
+        </p>
+      </div>
+
+      <div>
+        <label for="asof">View as of</label>
+        <input id="asof" class="field" type="date">
+      </div>
+    </div>
+
+    <div class="overview">
+      <div class="card hero">
+        <div>
+          <span class="muted">Net worth</span>
+          <div id="networth" class="big">—</div>
+        </div>
+
+        <span id="net-caption" class="muted small"></span>
+      </div>
+
+      <div class="card">
+        <h2>Accessible balance</h2>
+        <div id="accessible" class="metric">—</div>
+
+        <p class="muted small">
+          Marked-accessible items, less selected debts.
+          Property and locked deposits are excluded.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Needs review</h2>
+        <div id="stale" class="metric">—</div>
+
+        <p class="muted small">
+          Items with missing or older values, or mortgage warnings.
+        </p>
+
+        <button id="review-link" class="button secondary small"
+                style="margin-top:12px" type="button">
+          Open check-in
+        </button>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="reliability-title">
+      <div class="row">
+        <div>
+          <h2 id="reliability-title">
+            How reliable is this estimate?
+          </h2>
+
+          <p class="muted small">
+            See which values are recent, carried forward,
+            or based on a mortgage projection.
+          </p>
+        </div>
+
+        <strong id="reliability-summary"></strong>
+      </div>
+
+      <div id="reliability-content"
+           style="margin-top:15px"></div>
+
+      <p class="muted small" style="margin-top:15px">
+        “Recent” means recently recorded in this app—not independently
+        verified. Mortgage projections are estimates, not lender balances.
+      </p>
+    </section>
+
+    <div class="two">
+      <section class="card">
+        <div class="row">
+          <div>
+            <h2>Net worth over time</h2>
+            <p id="chart-caption" class="muted small"></p>
+          </div>
+
+          <select id="chart-range" class="field"
+                  style="width:auto" aria-label="Chart range">
+            <option value="3">3 months</option>
+            <option value="12" selected>1 year</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+
+        <div id="chart-wrap" class="chartbox hidden">
+          <canvas id="chart" aria-label="Net worth over time"></canvas>
+        </div>
+
+        <div id="chart-empty" class="empty"
+             style="margin-top:16px">
+          Enter values on two different dates to see progress.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Why did the recorded total change?</h2>
+        <p id="changes-period" class="muted small"></p>
+        <div id="changes"></div>
+
+        <p class="muted small" style="margin-top:14px">
+          These categories explain changes in the recorded total.
+          They do not identify investment returns or prove why a
+          real-world value changed.
+        </p>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>What makes up my net worth?</h2>
+
+      <p class="muted small">
+        Open a category to see each item's contribution and the
+        arithmetic behind property equity.
+      </p>
+
+      <div id="breakdown"></div>
+    </section>
+  </section>
+
+  <section id="items" class="stack hidden" aria-label="Items">
+    <div class="card">
+      <div class="row">
+        <div>
+          <h2>Assets &amp; debts</h2>
+
+          <p class="muted small">
+            Drag ⋮⋮ to reorder. Use Details to update values
+            or manage a property mortgage.
+          </p>
+        </div>
+
+        <span id="item-count" class="muted small"></span>
+      </div>
+
+      <div id="item-list"></div>
+    </div>
+
+    <div class="card">
+      <button id="archived-toggle" class="button secondary small"
+              type="button" aria-expanded="false">
+        Archived items (<span id="archived-count">0</span>) ↓
+      </button>
+
+      <div id="archived-list" class="hidden"></div>
+    </div>
+  </section>
+
+  <section id="checkin" class="stack hidden"
+           aria-label="Monthly check-in">
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="eyebrow">Monthly routine</div>
+          <h2>Review your numbers</h2>
+
+          <p class="muted small">
+            Confirm unchanged values or enter new ones.
+            Property mortgages update automatically when a plan exists.
+          </p>
+        </div>
+
+        <strong id="checkin-count"></strong>
+      </div>
+
+      <div class="progress" role="progressbar"
+           aria-label="Monthly check-in progress"
+           aria-valuemin="0" aria-valuemax="100"
+           aria-valuenow="0">
+        <span id="progress-bar"></span>
+      </div>
+
+      <div id="checkin-complete" class="notice green hidden">
+        All items have been reviewed this month.
+      </div>
+
+      <div id="pending"></div>
+
+      <button id="reviewed-toggle"
+              class="button secondary small hidden"
+              type="button" aria-expanded="false">
+        Already reviewed (<span id="reviewed-count">0</span>) ↓
+      </button>
+
+      <div id="reviewed" class="hidden"></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dialog" aria-labelledby="dialog-title">
+  <div class="dialog-inner">
+    <div class="row">
+      <div>
+        <div id="dialog-eyebrow" class="eyebrow"></div>
+        <h2 id="dialog-title"></h2>
+        <p id="dialog-description" class="muted small"></p>
+      </div>
+
+      <button id="dialog-close" class="button secondary small"
+              type="button" aria-label="Close">×</button>
+    </div>
+
+    <div id="dialog-body"></div>
+    <p id="dialog-error" class="error" role="alert"></p>
+    <div id="dialog-footer" class="dialog-footer"></div>
+  </div>
+</dialog>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
+<script>
+'use strict';
+
+const db = supabase.createClient(
+  'https://ipdvmhinxjwcxuwrwiad.supabase.co',
+  'sb_publishable_sBDt7t7eY6xN5FFMlyi7RA_vUFN1U5K'
+);
+
+const TYPES = {
+  cash: 'Cash',
+  stocks: 'Investments',
+  real_estate: 'Property',
+  fixed_deposit: 'Fixed deposit',
+  debt: 'Debt',
+  crypto: 'Crypto',
+  other: 'Other'
+};
+
+const $ = id => document.getElementById(id);
+
+const money = amount => Number(amount).toLocaleString(
+  undefined,
+  { style: 'currency', currency: 'EUR' }
+);
+
+const esc = value => String(value ?? '').replace(
+  /[&<>"']/g,
+  char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]
+);
+
+function dateToday() {
+  const date = new Date();
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function monthEndBefore(date) {
+  const [year, month] = date.split('-').map(Number);
+  const previous = new Date(year, month - 1, 0);
+
+  return [
+    previous.getFullYear(),
+    String(previous.getMonth() + 1).padStart(2, '0'),
+    String(previous.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function parseMoney(input) {
+  let text = String(input ?? '')
+    .trim()
+    .replace(/[€\s\u00a0\u202f]/g, '');
+
+  if (!text) return null;
+
+  const comma = text.lastIndexOf(',');
+  const dot = text.lastIndexOf('.');
+
+  if (comma >= 0 && dot >= 0) {
+    const decimal = comma > dot ? ',' : '.';
+
+    text = text
+      .replaceAll(decimal === ',' ? '.' : ',', '')
+      .replace(decimal, '.');
+  } else if (comma >= 0) {
+    text = text.replace(',', '.');
+  }
+
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+
+  const number = Number(text);
+
+  return Number.isFinite(number) &&
+    number <= 999999999999.99
+      ? number
+      : null;
+}
+
+function decimal(input, max = 100) {
+  const text = String(input ?? '')
+    .trim()
+    .replace(',', '.');
+
+  if (!/^\d+(\.\d{1,4})?$/.test(text)) return null;
+
+  const number = Number(text);
+
+  return number <= max ? number : null;
+}
+
+function inputMoney(value) {
+  return value == null
+    ? ''
+    : String(value).replace('.', ',');
+}
+
+function showToast(message, bad = false) {
+  $('toast').textContent = message;
+  $('toast').className = `toast${bad ? ' bad' : ''}`;
+
+  clearTimeout(showToast.timer);
+
+  showToast.timer = setTimeout(
+    () => $('toast').classList.add('hidden'),
+    4500
+  );
+}
+
+let assets = [];
+let valuations = [];
+let categories = [];
+let ownership = [];
+let plans = [];
+let overrides = [];
+
+let userId = null;
+let loadId = 0;
+let view = 'dashboard';
+let chart = null;
+let sortable = null;
+let orderBusy = false;
+let archivedOpen = false;
+let reviewedOpen = false;
+
+$('asof').value = dateToday();
+$('asof').max = dateToday();
+
+function categoryName(asset) {
+  return asset.category === 'custom'
+    ? categories.find(
+        category =>
+          category.id === asset.custom_category_id
+      )?.name ?? 'Custom category'
+    : TYPES[asset.category] ?? 'Other';
+}
+
+function activeAt(asset, date) {
+  return !asset.archived_on ||
+    date < asset.archived_on;
+}
+
+function shareAt(asset, date) {
+  let result = Number(asset.ownership_percent ?? 100);
+
+  for (const change of ownership) {
+    if (
+      change.asset_id === asset.id &&
+      change.effective_date <= date
+    ) {
+      result = Number(change.ownership_percent);
+    }
+  }
+
+  return result;
+}
+
+function latestValues(date) {
+  const map = new Map();
+
+  for (const valuation of valuations) {
+    if (valuation.date > date) break;
+    map.set(valuation.asset_id, valuation);
+  }
+
+  return map;
+}
+
+function addMonths(date, months) {
+  const [year, month, day] = date.split('-').map(Number);
+
+  const first = new Date(
+    Date.UTC(year, month - 1 + months, 1)
+  );
+
+  const lastDay = new Date(
+    Date.UTC(
+      first.getUTCFullYear(),
+      first.getUTCMonth() + 1,
+      0
+    )
+  ).getUTCDate();
+
+  return [
+    first.getUTCFullYear(),
+    String(first.getUTCMonth() + 1).padStart(2, '0'),
+    String(Math.min(day, lastDay)).padStart(2, '0')
+  ].join('-');
+}
+
+function planRemainingMonths(plan) {
+  if (plan.total_duration_months == null) {
+    return Number(plan.term_months);
+  }
+
+  const total = Number(plan.total_duration_months);
+  let alreadyScheduled = 0;
+
+  for (let i = 0; i < total; i++) {
+    if (
+      addMonths(plan.first_payment_date, i) <
+      plan.effective_date
+    ) {
+      alreadyScheduled++;
+    } else {
+      break;
+    }
+  }
+
+  return Math.max(0, total - alreadyScheduled);
+}
+
+function formatDuration(months) {
+  const years = Math.floor(months / 12);
+  const extra = months % 12;
+  const parts = [];
+
+  if (years) {
+    parts.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+  }
+
+  if (extra) {
+    parts.push(`${extra} ${extra === 1 ? 'month' : 'months'}`);
+  }
+
+  return parts.join(' ') || '0 months';
+}
+
+function annuity(principal, annualRate, months) {
+  if (months <= 0 || principal === 0) return 0;
+
+  const monthlyRate = annualRate / 1200;
+
+  if (monthlyRate === 0) {
+    return Math.round(principal / months * 100) / 100;
+  }
+
+  return Math.round(
+    principal * monthlyRate /
+    (1 - Math.pow(1 + monthlyRate, -months)) *
+    100
+  ) / 100;
+}
+
+function roundCents(number) {
+  return Math.round(
+    (number + Number.EPSILON) * 100
+  ) / 100;
+}
+
+function activePlan(asset, date) {
+  let found = null;
+
+  for (const plan of plans) {
+    if (
+      plan.asset_id === asset.id &&
+      plan.effective_date <= date
+    ) {
+      found = plan;
+    }
+  }
+
+  return found;
+}
+
+function mortgageAt(asset, date) {
+  const relevantActuals = overrides.filter(
+    actual =>
+      actual.asset_id === asset.id &&
+      actual.date <= date
+  );
+
+  const plan = activePlan(asset, date);
+
+  if (!plan) {
+    const last = relevantActuals.at(-1);
+
+    return {
+      balance: last ? Number(last.balance) : 0,
+      source: last
+        ? `Manual balance from ${last.date}`
+        : 'No balance recorded',
+      payment: null,
+      plan: null,
+      remainingMonths: null,
+      fixedPeriodExpired: false
+    };
+  }
+
+  const fixedEnd = plan.fixed_interest_end_date ?? null;
+
+  const fixedPeriodExpired =
+    Boolean(fixedEnd && date > fixedEnd);
+
+  const projectionEnd = fixedPeriodExpired
+    ? fixedEnd
+    : date;
+
+  let balance = Number(plan.opening_balance);
+
+  const remainingMonths = planRemainingMonths(plan);
+
+  const payment = annuity(
+    balance,
+    Number(plan.annual_rate),
+    remainingMonths
+  );
+
+  let source = 'Projected from mortgage plan';
+
+  const planActuals = relevantActuals.filter(
+    actual => actual.date >= plan.effective_date
+  );
+
+  const events = [];
+
+  const count = plan.total_duration_months == null
+    ? Number(plan.term_months)
+    : Number(plan.total_duration_months);
+
+  for (let i = 0; i < count; i++) {
+    const due = addMonths(plan.first_payment_date, i);
+
+    if (due > projectionEnd) break;
+
+    if (due >= plan.effective_date) {
+      events.push({ date: due, kind: 'payment' });
+    }
+  }
+
+  for (const actual of planActuals) {
+    events.push({
+      date: actual.date,
+      kind: 'actual',
+      balance: Number(actual.balance)
+    });
+  }
+
+  /*
+   * If an actual balance and a scheduled payment have the
+   * same date, the actual balance takes precedence.
+   */
+  events.sort(
+    (a, b) =>
+      a.date.localeCompare(b.date) ||
+      (a.kind === 'payment' ? -1 : 1)
+  );
+
+  for (const event of events) {
+    if (event.kind === 'actual') {
+      balance = event.balance;
+
+      source = event.date === date
+        ? 'Actual balance recorded on this date'
+        : `Last actual balance recorded ${event.date}`;
+    } else if (balance > 0) {
+      const interest = roundCents(
+        balance *
+        Number(plan.annual_rate) /
+        1200
+      );
+
+      balance = Math.max(
+        0,
+        roundCents(
+          balance +
+          interest -
+          Math.min(balance + interest, payment)
+        )
+      );
+    }
+  }
+
+  if (fixedPeriodExpired) {
+    const actualAfterExpiry = planActuals
+      .filter(actual => actual.date > fixedEnd)
+      .at(-1);
+
+    source = actualAfterExpiry
+      ? `Last actual balance from ${actualAfterExpiry.date}; no payments projected after fixed interest ended ${fixedEnd}`
+      : `Fixed interest ended ${fixedEnd}; last projected balance carried forward`;
+  } else {
+    const lastActual = planActuals.at(-1);
+
+    if (lastActual && lastActual.date < date) {
+      source =
+        `Projection includes actual balance from ${lastActual.date}`;
+    }
+  }
+
+  return {
+    balance,
+    source,
+    payment: fixedPeriodExpired ? null : payment,
+    plan,
+    remainingMonths,
+    fixedPeriodExpired
+  };
+}
+
+function contribution(asset, entry, date) {
+  if (!entry || !activeAt(asset, date)) return 0;
+
+  const value = Number(entry.value);
+
+  if (asset.category === 'debt') {
+    return -value;
+  }
+
+  if (asset.category === 'real_estate') {
+    return (
+      value *
+      shareAt(asset, date) /
+      100
+    ) - mortgageAt(asset, date).balance;
+  }
+
+  return value;
+}
+
+function netWorth(date) {
+  const latest = latestValues(date);
+
+  return assets.reduce(
+    (sum, asset) =>
+      sum + contribution(
+        asset,
+        latest.get(asset.id),
+        date
+      ),
+    0
+  );
+}
+
+function accessible(date) {
+  const latest = latestValues(date);
+
+  return assets.reduce((sum, asset) => {
+    if (!activeAt(asset, date)) return sum;
+
+    const entry = latest.get(asset.id);
+
+    if (!entry) return sum;
+
+    if (asset.category === 'debt') {
+      return asset.subtract_debt_from_accessible
+        ? sum + contribution(asset, entry, date)
+        : sum;
+    }
+
+    if (asset.category === 'real_estate') {
+      return sum;
+    }
+
+    if (asset.category === 'fixed_deposit') {
+      return asset.maturity_date &&
+        asset.maturity_date <= date
+          ? sum + Number(entry.value)
+          : sum;
+    }
+
+    return asset.accessible
+      ? sum + Number(entry.value)
+      : sum;
+  }, 0);
+}
+
+async function fetchAll(table, order) {
+  const rows = [];
+
+  for (let start = 0; ; start += 500) {
+    let query = db.from(table).select('*');
+
+    for (const column of order) {
+      query = query.order(column);
+    }
+
+    const { data, error } = await query.range(
+      start,
+      start + 499
+    );
+
+    if (error) throw error;
+
+    rows.push(...data);
+
+    if (data.length < 500) return rows;
+  }
+}
+
+async function load() {
+  const token = ++loadId;
+  const account = userId;
+
+  if (!account) return false;
+
+  try {
+    const [a, v, c, o, p, m] = await Promise.all([
+      fetchAll('assets', ['created_at', 'id']),
+      fetchAll('valuations', ['date', 'id']),
+      fetchAll('custom_categories', ['name', 'id']),
+      fetchAll(
+        'property_ownership_changes',
+        ['effective_date', 'id']
+      ),
+      fetchAll(
+        'property_loan_plans',
+        ['effective_date', 'id']
+      ),
+      fetchAll(
+        'property_mortgage_overrides',
+        ['date', 'id']
+      )
+    ]);
+
+    if (
+      token !== loadId ||
+      account !== userId
+    ) {
+      return false;
+    }
+
+    assets = a;
+
+    assets.sort(
+      (x, y) =>
+        Number(x.sort_order ?? 999999) -
+          Number(y.sort_order ?? 999999) ||
+        x.id.localeCompare(y.id)
+    );
+
+    valuations = v;
+    categories = c;
+    ownership = o;
+    plans = p;
+    overrides = m;
+
+    render();
+    return true;
+  } catch (error) {
+    if (
+      token === loadId &&
+      account === userId
+    ) {
+      showToast(
+        `Could not load data: ${error.message}`,
+        true
+      );
+    }
+
+    return false;
+  }
+}
+
+db.auth.onAuthStateChange((_event, session) => {
+  const next = session?.user?.id ?? null;
+
+  $('auth').classList.toggle('hidden', Boolean(next));
+  $('app').classList.toggle('hidden', !next);
+  $('header-right').classList.toggle('hidden', !next);
+
+  if (!next) {
+    userId = null;
+    loadId++;
+
+    assets = [];
+    valuations = [];
+    categories = [];
+    ownership = [];
+    plans = [];
+    overrides = [];
+
+    if (chart) {
+      chart.destroy();
+      chart = null;
+    }
+
+    if ($('dialog').open) {
+      $('dialog').close();
+    }
+
+    return;
+  }
+
+  $('header-email').textContent =
+    session.user.email ?? '';
+
+  if (next !== userId) {
+    userId = next;
+    setTimeout(load, 0);
+  }
+});
+
+async function authenticate(mode) {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  $('auth-error').textContent = '';
+
+  if (!email || !password) {
+    $('auth-error').textContent =
+      'Enter your email and password.';
+    return;
+  }
+
+  $('login').disabled = true;
+  $('signup').disabled = true;
+
+  try {
+    const result = mode === 'signup'
+      ? await db.auth.signUp({ email, password })
+      : await db.auth.signInWithPassword({ email, password });
+
+    if (result.error) throw result.error;
+
+    if (
+      mode === 'signup' &&
+      !result.data.session
+    ) {
+      $('auth-error').textContent =
+        'Check your email to confirm your account.';
+    }
+  } catch (error) {
+    $('auth-error').textContent = error.message;
+  } finally {
+    $('login').disabled = false;
+    $('signup').disabled = false;
+  }
+}
+
+$('login').onclick = () => authenticate('login');
+$('signup').onclick = () => authenticate('signup');
+
+$('password').onkeydown = event => {
+  if (event.key === 'Enter') {
+    authenticate('login');
+  }
+};
+
+$('logout').onclick = async () => {
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    showToast(error.message, true);
+  }
+};
+
+function navigate(next) {
+  view = ['dashboard', 'items', 'checkin'].includes(next)
+    ? next
+    : 'dashboard';
+
+  for (const name of [
+    'dashboard',
+    'items',
+    'checkin'
+  ]) {
+    $(name).classList.toggle(
+      'hidden',
+      name !== view
+    );
+  }
+
+  for (const button of $('nav').querySelectorAll('button')) {
+    button.classList.toggle(
+      'active',
+      button.dataset.view === view
+    );
+  }
+
+  render();
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+$('nav').onclick = event => {
+  const button = event.target.closest('[data-view]');
+
+  if (button) {
+    navigate(button.dataset.view);
+  }
+};
+
+$('brand').onclick = event => {
+  event.preventDefault();
+
+  if (userId) {
+    navigate('dashboard');
+  }
+};
+
+$('review-link').onclick = () => navigate('checkin');
+$('open-add').onclick = () => addDialog();
+
+function render() {
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'items') renderItems();
+  if (view === 'checkin') renderCheckin();
+}
+
+/* ============================================================
+   DASHBOARD TRANSPARENCY
+   ============================================================ */
+
+function valueAgeDays(entry, date) {
+  if (!entry) return null;
+
+  return Math.max(
+    0,
+    Math.floor(
+      (
+        Date.parse(date + 'T12:00:00Z') -
+        Date.parse(entry.date + 'T12:00:00Z')
+      ) / 86400000
+    )
+  );
+}
+
+function freshnessDays(asset) {
+  if (asset.category === 'real_estate') return 365;
+
+  if (
+    ['fixed_deposit', 'other', 'custom']
+      .includes(asset.category)
+  ) {
+    return 90;
+  }
+
+  return 30;
+}
+
+function mortgageEvidence(asset, date) {
+  const mortgage = mortgageAt(asset, date);
+
+  const planActuals = overrides.filter(
+    actual =>
+      actual.asset_id === asset.id &&
+      actual.date <= date &&
+      (
+        !mortgage.plan ||
+        actual.date >= mortgage.plan.effective_date
+      )
+  );
+
+  const lastActual = planActuals.at(-1) ?? null;
+
+  if (mortgage.fixedPeriodExpired) {
+    return {
+      label: 'Fixed-interest period ended',
+      warning: true,
+      explanation:
+        `Payments are no longer projected using the expired rate. ` +
+        `The displayed balance needs review. ${mortgage.source}.`
+    };
+  }
+
+  if (mortgage.plan) {
+    if (lastActual?.date === date) {
+      return {
+        label: 'Actual balance recorded',
+        warning: false,
+        explanation:
+          `Mortgage balance entered for ${date}.`
+      };
+    }
+
+    return {
+      label: 'Mortgage projection',
+      warning: false,
+      explanation:
+        lastActual
+          ? `Projected using the plan and an actual balance ` +
+            `recorded ${lastActual.date}.`
+          : 'Projected using the mortgage plan.'
+    };
+  }
+
+  if (lastActual) {
+    return {
+      label: 'Manual balance carried forward',
+      warning: false,
+      explanation:
+        `Last mortgage balance entered ${lastActual.date}; ` +
+        `no automatic payment projection.`
+    };
+  }
+
+  return {
+    label: 'Mortgage balance missing',
+    warning: true,
+    explanation:
+      'No mortgage plan or actual mortgage balance is recorded. ' +
+      'The calculation currently assumes a balance of €0.'
+  };
+}
+
+function renderReliability(date, active, latest) {
+  const withValues = active.filter(
+    asset => latest.has(asset.id)
+  );
+
+  const missing = active.filter(
+    asset => !latest.has(asset.id)
+  );
+
+  const older = withValues.filter(asset =>
+    valueAgeDays(latest.get(asset.id), date) >
+    freshnessDays(asset)
+  );
+
+  const recentCount =
+    withValues.length - older.length;
+
+  const propertyStates = withValues
+    .filter(asset => asset.category === 'real_estate')
+    .map(asset => ({
+      asset,
+      evidence: mortgageEvidence(asset, date)
+    }));
+
+  const projections = propertyStates.filter(
+    item =>
+      item.evidence.label === 'Mortgage projection'
+  );
+
+  const mortgageWarnings = propertyStates.filter(
+    item => item.evidence.warning
+  );
+
+  const attentionCount = new Set([
+    ...missing.map(asset => asset.id),
+    ...older.map(asset => asset.id),
+    ...mortgageWarnings.map(item => item.asset.id)
+  ]).size;
+
+  $('stale').textContent = attentionCount
+    ? `${attentionCount} items`
+    : 'Up to date';
+
+  $('reliability-summary').textContent =
+    attentionCount
+      ? `${attentionCount} need attention`
+      : 'No issues flagged';
+
+  const summary = `
+    <p class="small">
+      <strong>${withValues.length}</strong> items included ·
+      <strong>${recentCount}</strong> recently recorded ·
+      <strong>${older.length}</strong> older values carried forward ·
+      <strong>${projections.length}</strong> mortgage projections ·
+      <strong>${missing.length}</strong> items without a value
+    </p>
+  `;
+
+  const issues = [
+    ...missing.map(asset => ({
+      name: asset.name,
+      label: 'No value',
+      explanation:
+        'This item is not contributing to the displayed net worth.'
+    })),
+
+    ...older.map(asset => {
+      const entry = latest.get(asset.id);
+
+      return {
+        name: asset.name,
+        label: 'Older value',
+        explanation:
+          `Value from ${entry.date} is being carried forward.`
+      };
+    }),
+
+    ...mortgageWarnings.map(({ asset, evidence }) => ({
+      name: asset.name,
+      label: evidence.label,
+      explanation: evidence.explanation
+    }))
+  ];
+
+  $('reliability-content').innerHTML =
+    summary +
+    (
+      issues.length
+        ? `
+          <div class="transparency-list"
+               style="margin-top:13px">
+            ${issues.map(issue => `
+              <div class="transparency-item">
+                <div class="row">
+                  <strong>${esc(issue.name)}</strong>
+
+                  <span class="status warning">
+                    ${esc(issue.label)}
+                  </span>
+                </div>
+
+                <p class="muted small">
+                  ${esc(issue.explanation)}
+                </p>
+              </div>
+            `).join('')}
+          </div>
+        `
+        : `
+          <p class="notice green"
+             style="margin-top:13px">
+            No missing values, older values, or mortgage
+            warnings were identified for this date.
+          </p>
+        `
+    );
+
+  if (projections.length) {
+    $('reliability-content').insertAdjacentHTML(
+      'beforeend',
+      `
+        <p class="muted small" style="margin-top:12px">
+          Projected mortgage balances:
+          ${projections.map(
+            item => esc(item.asset.name)
+          ).join(', ')}.
+          Check these against your lender periodically.
+        </p>
+      `
+    );
+  }
+
+  if (!active.length) {
+    $('reliability-summary').textContent = 'No active items';
+
+    $('reliability-content').innerHTML = `
+      <p class="muted small">
+        Add an item to start building your net-worth estimate.
+      </p>
+    `;
+  }
+}
+
+function renderNetWorthComposition(date, active, latest) {
+  const groups = new Map();
+
+  for (const asset of active) {
+    const name = categoryName(asset);
+
+    if (!groups.has(name)) {
+      groups.set(name, []);
+    }
+
+    groups.get(name).push(asset);
+  }
+
+  $('breakdown').innerHTML = groups.size
+    ? [...groups].map(([name, items]) => {
+        const total = items.reduce(
+          (sum, asset) =>
+            sum + contribution(
+              asset,
+              latest.get(asset.id),
+              date
+            ),
+          0
+        );
+
+        return `
+          <details class="category-details">
+            <summary>
+              <span class="category-name">${esc(name)}</span>
+
+              <strong class="${total < 0 ? 'negative' : ''}">
+                ${money(total)}
+              </strong>
+            </summary>
+
+            <div class="category-items">
+              ${items.map(asset => {
+                const entry = latest.get(asset.id);
+
+                if (!entry) {
+                  return `
+                    <div class="transparency-item"
+                         style="margin-bottom:8px">
+                      <strong>${esc(asset.name)}</strong>
+
+                      <p class="muted small">
+                        No recorded value; contributes €0
+                        to this estimate.
+                      </p>
+                    </div>
+                  `;
+                }
+
+                const amount = contribution(
+                  asset,
+                  entry,
+                  date
+                );
+
+                let explanation =
+                  `Value from ${entry.date} carried ` +
+                  `forward to ${date}.`;
+
+                if (asset.category === 'real_estate') {
+                  const share = shareAt(asset, date);
+
+                  const shareValue =
+                    Number(entry.value) *
+                    share / 100;
+
+                  const mortgage = mortgageAt(
+                    asset,
+                    date
+                  );
+
+                  const evidence = mortgageEvidence(
+                    asset,
+                    date
+                  );
+
+                  explanation =
+                    `Full property value ${money(entry.value)} ` +
+                    `from ${entry.date} × ${share}% ownership ` +
+                    `= ${money(shareValue)}; minus mortgage ` +
+                    `${money(mortgage.balance)} ` +
+                    `= ${money(amount)}. ` +
+                    `${evidence.explanation}`;
+                } else if (asset.category === 'debt') {
+                  explanation =
+                    `Amount owed ${money(entry.value)} ` +
+                    `from ${entry.date}; subtracts ` +
+                    `${money(entry.value)} from net worth.`;
+                }
+
+                return `
+                  <div class="transparency-item"
+                       style="margin-bottom:8px">
+                    <div class="row">
+                      <strong>${esc(asset.name)}</strong>
+
+                      <strong class="${
+                        amount < 0 ? 'negative' : ''
+                      }">
+                        ${money(amount)}
+                      </strong>
+                    </div>
+
+                    <p class="muted small">
+                      ${esc(explanation)}
+                    </p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </details>
+        `;
+      }).join('')
+    : `
+      <p class="muted small" style="margin-top:13px">
+        Add an item to get started.
+      </p>
+    `;
+}
+
+function renderChangeExplanation(date) {
+  const previous = monthEndBefore(date);
+  const before = latestValues(previous);
+  const after = latestValues(date);
+
+  const groups = {
+    propertyValues: [],
+    mortgageBalances: [],
+    ownership: [],
+    otherValues: [],
+    newlyTracked: [],
+    archived: []
+  };
+
+  function add(group, name, amount) {
+    if (Math.abs(amount) >= .005) {
+      groups[group].push({ name, amount });
+    }
+  }
+
+  for (const asset of assets) {
+    const oldEntry = before.get(asset.id);
+    const newEntry = after.get(asset.id);
+
+    const wasIncluded =
+      activeAt(asset, previous) &&
+      Boolean(oldEntry);
+
+    const isIncluded =
+      activeAt(asset, date) &&
+      Boolean(newEntry);
+
+    const oldContribution = contribution(
+      asset,
+      oldEntry,
+      previous
+    );
+
+    const newContribution = contribution(
+      asset,
+      newEntry,
+      date
+    );
+
+    if (wasIncluded && !isIncluded) {
+      add(
+        'archived',
+        asset.name,
+        -oldContribution
+      );
+      continue;
+    }
+
+    if (!wasIncluded && isIncluded) {
+      add(
+        'newlyTracked',
+        asset.name,
+        newContribution
+      );
+      continue;
+    }
+
+    if (!wasIncluded || !isIncluded) {
+      continue;
+    }
+
+    if (asset.category !== 'real_estate') {
+      add(
+        'otherValues',
+        asset.name,
+        newContribution -
+        oldContribution
+      );
+      continue;
+    }
+
+    const oldShare = shareAt(asset, previous) / 100;
+    const newShare = shareAt(asset, date) / 100;
+
+    const oldValue = Number(oldEntry.value);
+    const newValue = Number(newEntry.value);
+
+    /*
+     * Split the property contribution into ownership,
+     * recorded property value, and mortgage components.
+     * Together they equal the total contribution change.
+     */
+    add(
+      'ownership',
+      asset.name,
+      oldValue * (newShare - oldShare)
+    );
+
+    add(
+      'propertyValues',
+      asset.name,
+      (newValue - oldValue) * newShare
+    );
+
+    add(
+      'mortgageBalances',
+      asset.name,
+      mortgageAt(asset, previous).balance -
+      mortgageAt(asset, date).balance
+    );
+  }
+
+  const definitions = [
+    [
+      'propertyValues',
+      'Recorded property-value changes'
+    ],
+    [
+      'mortgageBalances',
+      'Mortgage-balance changes'
+    ],
+    [
+      'ownership',
+      'Ownership-percentage changes'
+    ],
+    [
+      'otherValues',
+      'Other asset and debt changes'
+    ],
+    [
+      'newlyTracked',
+      'Newly tracked items'
+    ],
+    [
+      'archived',
+      'Archived items'
+    ]
+  ];
+
+  $('changes-period').textContent =
+    `${previous} → ${date}`;
+
+  $('changes').innerHTML =
+    definitions.map(([key, heading]) => {
+      const rows = groups[key].sort(
+        (a, b) =>
+          Math.abs(b.amount) -
+          Math.abs(a.amount)
+      );
+
+      if (!rows.length) return '';
+
+      const subtotal = rows.reduce(
+        (sum, row) => sum + row.amount,
+        0
+      );
+
+      return `
+        <div class="change-group">
+          <div class="line">
+            <h3>${heading}</h3>
+
+            <strong class="${
+              subtotal < 0 ? 'negative' : ''
+            }">
+              ${subtotal >= 0 ? '+' : ''}${money(subtotal)}
+            </strong>
+          </div>
+
+          ${rows.map(row => `
+            <div class="line">
+              <span>${esc(row.name)}</span>
+
+              <span class="${
+                row.amount < 0 ? 'negative' : ''
+              }">
+                ${row.amount >= 0 ? '+' : ''}${money(row.amount)}
+              </span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('') ||
+    `
+      <p class="muted small" style="margin-top:13px">
+        No recorded change in this period.
+      </p>
+    `;
+
+  if (groups.archived.length) {
+    $('changes').insertAdjacentHTML(
+      'beforeend',
+      `
+        <p class="notice" style="margin-top:14px">
+          Archiving removes an item from tracked net worth.
+          It does not mean the money was lost or a debt was repaid.
+        </p>
+      `
+    );
+  }
+}
+
+function renderDashboard() {
+  const date = $('asof').value || dateToday();
+  const latest = latestValues(date);
+
+  const active = assets.filter(
+    asset => activeAt(asset, date)
+  );
+
+  $('historical').classList.toggle(
+    'hidden',
+    date === dateToday()
+  );
+
+  $('review-link').classList.toggle(
+    'hidden',
+    date !== dateToday()
+  );
+
+  $('networth').textContent =
+    money(netWorth(date));
+
+  $('accessible').textContent =
+    money(accessible(date));
+
+  $('net-caption').textContent =
+    `As of ${date} · last known values carried forward`;
+
+  renderReliability(date, active, latest);
+  renderNetWorthComposition(date, active, latest);
+  renderChangeExplanation(date);
+  renderChart(date);
+}
+
+$('asof').onchange = () => {
+  if (
+    !$('asof').value ||
+    $('asof').value > dateToday()
+  ) {
+    $('asof').value = dateToday();
+  }
+
+  renderDashboard();
+};
+
+$('today-button').onclick = () => {
+  $('asof').value = dateToday();
+  renderDashboard();
+};
+
+$('chart-range').onchange = () => renderDashboard();
+
+function renderChart(date) {
+  const dates = new Set(
+    valuations
+      .filter(valuation => valuation.date <= date)
+      .map(valuation => valuation.date)
+  );
+
+  for (const asset of assets) {
+    if (
+      asset.archived_on &&
+      asset.archived_on <= date
+    ) {
+      dates.add(asset.archived_on);
+    }
+  }
+
+  for (const change of ownership) {
+    if (change.effective_date <= date) {
+      dates.add(change.effective_date);
+    }
+  }
+
+  for (const plan of plans) {
+    if (plan.effective_date <= date) {
+      dates.add(plan.effective_date);
+    }
+
+    if (
+      plan.fixed_interest_end_date &&
+      plan.fixed_interest_end_date <= date
+    ) {
+      dates.add(plan.fixed_interest_end_date);
+    }
+  }
+
+  for (const plan of plans) {
+    const end = plan.fixed_interest_end_date &&
+      plan.fixed_interest_end_date < date
+        ? plan.fixed_interest_end_date
+        : date;
+
+    const count = plan.total_duration_months == null
+      ? Number(plan.term_months)
+      : Number(plan.total_duration_months);
+
+    for (let i = 0; i < count; i++) {
+      const due = addMonths(plan.first_payment_date, i);
+
+      if (due > end) break;
+
+      if (due >= plan.effective_date) {
+        dates.add(due);
+      }
+    }
+  }
+
+  for (const actual of overrides) {
+    if (actual.date <= date) {
+      dates.add(actual.date);
+    }
+  }
+
+  const all = [...dates].sort();
+  const range = $('chart-range').value;
+
+  const cutoff = range === 'all'
+    ? null
+    : addMonths(date, -Number(range));
+
+  const points = all.filter(
+    point => !cutoff || point >= cutoff
+  );
+
+  if (
+    cutoff &&
+    all.some(point => point < cutoff)
+  ) {
+    points.unshift(cutoff);
+  }
+
+  if (
+    all.length &&
+    !points.includes(date)
+  ) {
+    points.push(date);
+  }
+
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+
+  $('chart-wrap').classList.toggle(
+    'hidden',
+    points.length < 2
+  );
+
+  $('chart-empty').classList.toggle(
+    'hidden',
+    points.length >= 2
+  );
+
+  $('chart-caption').textContent =
+    points.length >= 2
+      ? `${money(netWorth(points[0]))} → ${money(netWorth(points.at(-1)))}`
+      : 'Not enough history in this range.';
+
+  if (points.length < 2) return;
+
+  chart = new Chart($('chart'), {
+    type: 'line',
+
+    data: {
+      labels: points,
+
+      datasets: [{
+        data: points.map(netWorth),
+        borderColor: '#167453',
+        backgroundColor: '#16745318',
+        fill: true,
+        pointRadius: points.length > 30 ? 0 : 3,
+        tension: .15
+      }]
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: { display: false },
+
+        tooltip: {
+          callbacks: {
+            label: context =>
+              `Net worth: ${money(context.parsed.y)}`
+          }
+        }
+      },
+
+      scales: {
+        x: {
+          ticks: { maxTicksLimit: 6 },
+          grid: { display: false }
+        },
+
+        y: {
+          ticks: {
+            callback: value => money(value)
+          }
+        }
+      }
+    }
+  });
+}
+
+/* ============================================================
+   ITEMS
+   ============================================================ */
+
+function renderItems() {
+  const active = assets.filter(
+    asset => !asset.archived_on
+  );
+
+  const archived = assets.filter(
+    asset => asset.archived_on
+  );
+
+  const latest = latestValues(dateToday());
+
+  $('item-count').textContent =
+    `${active.length} active items`;
+
+  $('archived-count').textContent =
+    archived.length;
+
+  $('item-list').innerHTML = active.length
+    ? active.map((asset, index) => {
+        const entry = latest.get(asset.id);
+
+        const mortgage =
+          asset.category === 'real_estate'
+            ? mortgageAt(asset, dateToday())
+            : null;
+
+        const detail = [
+          categoryName(asset),
+
+          asset.category === 'real_estate'
+            ? `${shareAt(asset, dateToday())}% owned`
+            : '',
+
+          mortgage
+            ? `Mortgage ${money(mortgage.balance)} · ${mortgage.source}`
+            : '',
+
+          mortgage?.plan?.fixed_interest_end_date
+            ? `Fixed interest until ${mortgage.plan.fixed_interest_end_date}`
+            : '',
+
+          asset.category === 'fixed_deposit' &&
+          asset.maturity_date
+            ? `Fixed until ${asset.maturity_date}`
+            : '',
+
+          entry
+            ? `Property/asset value updated ${entry.date}`
+            : 'No value recorded'
+        ].filter(Boolean).join(' · ');
+
+        return `
+          <div class="asset-row" data-id="${asset.id}">
+            <div>
+              <button class="drag" type="button"
+                      aria-label="Drag ${esc(asset.name)} to reorder">
+                ⋮⋮
+              </button>
+
+              <button class="move up" type="button"
+                      aria-label="Move ${esc(asset.name)} up"
+                      ${index === 0 ? 'disabled' : ''}>↑</button>
+
+              <button class="move down" type="button"
+                      aria-label="Move ${esc(asset.name)} down"
+                      ${index === active.length - 1
+                        ? 'disabled'
+                        : ''}>↓</button>
+            </div>
+
+            <div>
+              <strong>${esc(asset.name)}</strong>
+              <p class="muted small">${esc(detail)}</p>
+            </div>
+
+            <div class="amount">
+              ${entry
+                ? money(contribution(asset, entry, dateToday()))
+                : '—'}
+            </div>
+
+            <div class="actions">
+              <button class="button secondary small details"
+                      type="button">Details</button>
+
+              <button class="button secondary small edit"
+                      type="button">Edit</button>
+            </div>
+          </div>
+        `;
+      }).join('')
+    : `
+      <div class="empty" style="margin-top:15px">
+        No active items.
+      </div>
+    `;
+
+  $('archived-list').classList.toggle(
+    'hidden',
+    !archivedOpen
+  );
+
+  $('archived-toggle').setAttribute(
+    'aria-expanded',
+    String(archivedOpen)
+  );
+
+  $('archived-list').innerHTML =
+    archived.map(asset => `
+      <div class="line" data-archived="${asset.id}">
+        <span>
+          ${esc(asset.name)} · Archived ${asset.archived_on}
+        </span>
+
+        <span class="actions">
+          <button class="button secondary small details"
+                  type="button">History</button>
+
+          <button class="button secondary small restore"
+                  type="button">Restore</button>
+        </span>
+      </div>
+    `).join('') ||
+    '<p class="muted small">No archived items.</p>';
+
+  if (!sortable && window.Sortable) {
+    sortable = Sortable.create(
+      $('item-list'),
+      {
+        animation: 160,
+        handle: '.drag',
+        draggable: '.asset-row[data-id]',
+        ghostClass: 'sort-ghost',
+        forceFallback: true,
+        fallbackOnBody: true,
+        onEnd: saveOrder
+      }
+    );
+  }
+}
+
+async function saveOrder() {
+  if (orderBusy || !userId) return;
+
+  const ids = [
+    ...$('item-list').querySelectorAll('[data-id]')
+  ].map(row => row.dataset.id);
+
+  const old = assets
+    .filter(asset => !asset.archived_on)
+    .map(asset => asset.id);
+
+  if (ids.join(',') === old.join(',')) return;
+
+  orderBusy = true;
+
+  if (sortable) {
+    sortable.option('disabled', true);
+  }
+
+  const { error } = await db.rpc(
+    'reorder_my_assets',
+    { p_ids: ids }
+  );
+
+  orderBusy = false;
+
+  if (sortable) {
+    sortable.option('disabled', false);
+  }
+
+  await load();
+
+  showToast(
+    error ? error.message : 'Order saved.',
+    Boolean(error)
+  );
+}
+
+$('item-list').onclick = async event => {
+  const button = event.target.closest('button');
+  const row = event.target.closest('[data-id]');
+
+  if (!button || !row) return;
+
+  const asset = assets.find(
+    item => item.id === row.dataset.id
+  );
+
+  if (!asset) return;
+
+  if (
+    button.classList.contains('up') ||
+    button.classList.contains('down')
+  ) {
+    if (orderBusy) return;
+
+    const other = button.classList.contains('up')
+      ? row.previousElementSibling
+      : row.nextElementSibling;
+
+    if (!other?.dataset.id) return;
+
+    if (button.classList.contains('up')) {
+      row.parentNode.insertBefore(row, other);
+    } else {
+      row.parentNode.insertBefore(other, row);
+    }
+
+    await saveOrder();
+  } else if (
+    button.classList.contains('details')
+  ) {
+    detailsDialog(asset);
+  } else if (
+    button.classList.contains('edit')
+  ) {
+    editDialog(asset);
+  }
+};
+
+$('archived-toggle').onclick = () => {
+  archivedOpen = !archivedOpen;
+  renderItems();
+};
+
+$('archived-list').onclick = event => {
+  const button = event.target.closest('button');
+  const row = event.target.closest('[data-archived]');
+
+  if (!button || !row) return;
+
+  const asset = assets.find(
+    item => item.id === row.dataset.archived
+  );
+
+  if (!asset) return;
+
+  if (button.classList.contains('details')) {
+    detailsDialog(asset);
+  }
+
+  if (button.classList.contains('restore')) {
+    confirmDialog(
+      `Restore ${asset.name}?`,
+      'Its last recorded values will count again. Review them after restoring.',
+      'Restore item',
+      async () => {
+        const { error } = await db
+          .from('assets')
+          .update({ archived_on: null })
+          .eq('id', asset.id);
+
+        if (error) throw error;
+
+        await load();
+        showToast('Item restored.');
+      }
+    );
+  }
+};
+
+/* ============================================================
+   CHECK-IN
+   ============================================================ */
+
+function renderCheckin() {
+  const active = assets.filter(
+    asset => !asset.archived_on
+  );
+
+  const latest = latestValues(dateToday());
+  const first = dateToday().slice(0, 7) + '-01';
+
+  const pending = active.filter(asset => {
+    const valuation = latest.get(asset.id);
+
+    return !valuation ||
+      valuation.date < first;
+  });
+
+  const done = active.filter(
+    asset => !pending.includes(asset)
+  );
+
+  $('checkin-count').textContent =
+    `${done.length} of ${active.length} reviewed`;
+
+  const percent = active.length
+    ? Math.round(done.length / active.length * 100)
+    : 0;
+
+  $('progress-bar').style.width = percent + '%';
+
+  document.querySelector('.progress')
+    .setAttribute('aria-valuenow', String(percent));
+
+  $('checkin-complete').classList.toggle(
+    'hidden',
+    !active.length || pending.length > 0
+  );
+
+  $('pending').innerHTML =
+    pending.map(reviewCard).join('') ||
+    (!active.length
+      ? '<div class="empty">Add an item to start your check-in.</div>'
+      : '');
+
+  $('reviewed-count').textContent = done.length;
+
+  $('reviewed-toggle').classList.toggle(
+    'hidden',
+    !done.length
+  );
+
+  $('reviewed-toggle').setAttribute(
+    'aria-expanded',
+    String(reviewedOpen)
+  );
+
+  $('reviewed').classList.toggle(
+    'hidden',
+    !reviewedOpen
+  );
+
+  $('reviewed').innerHTML =
+    reviewedOpen
+      ? done.map(reviewCard).join('')
+      : '';
+}
+
+function reviewCard(asset) {
+  const entry = latestValues(dateToday()).get(asset.id);
+  const property = asset.category === 'real_estate';
+
+  return `
+    <div class="review" data-review="${asset.id}">
+      <div class="row">
+        <div>
+          <strong>${esc(asset.name)}</strong>
+
+          <p class="muted small">
+            ${entry
+              ? `Asset value last recorded ${entry.date}`
+              : 'No value yet'}
+
+            ${property
+              ? ` · Mortgage estimate ${
+                  money(mortgageAt(asset, dateToday()).balance)
+                }`
+              : ''}
+          </p>
+        </div>
+
+        <strong>
+          ${entry
+            ? money(contribution(asset, entry, dateToday()))
+            : '—'}
+        </strong>
+      </div>
+
+      <div class="actions" style="margin-top:12px">
+        <div style="width:min(220px,100%)">
+          <label for="review-${asset.id}">
+            ${property
+              ? 'Full property value (€)'
+              : asset.category === 'debt'
+                ? 'Amount owed (€)'
+                : 'Value (€)'}
+          </label>
+
+          <input id="review-${asset.id}"
+                 class="field value"
+                 type="text"
+                 inputmode="decimal"
+                 value="${esc(inputMoney(entry?.value))}">
+        </div>
+
+        <button class="button secondary save-review"
+                type="button">Confirm / save</button>
+
+        ${property
+          ? `<button class="button secondary mortgage-link"
+                     type="button">Mortgage details</button>`
+          : ''}
+      </div>
+
+      <p class="error" role="alert"></p>
+    </div>
+  `;
+}
+
+$('reviewed-toggle').onclick = () => {
+  reviewedOpen = !reviewedOpen;
+  renderCheckin();
+};
+
+$('checkin').onclick = async event => {
+  const row = event.target.closest('[data-review]');
+  const button = event.target.closest('button');
+
+  if (!row || !button) return;
+
+  const asset = assets.find(
+    item => item.id === row.dataset.review
+  );
+
+  if (!asset) return;
+
+  if (button.classList.contains('mortgage-link')) {
+    mortgageDialog(asset);
+    return;
+  }
+
+  if (!button.classList.contains('save-review')) return;
+
+  const value = parseMoney(
+    row.querySelector('.value').value
+  );
+
+  if (value === null) {
+    row.querySelector('.error').textContent =
+      'Enter a non-negative amount, e.g. 1234,56.';
+    return;
+  }
+
+  button.disabled = true;
+
+  try {
+    await saveValue(asset, dateToday(), value);
+    await load();
+    showToast(`${asset.name} reviewed.`);
+  } catch (error) {
+    button.disabled = false;
+    row.querySelector('.error').textContent = error.message;
+  }
+};
+
+async function saveValue(asset, date, value) {
+  /*
+   * Retain the legacy mortgage_value column for compatibility.
+   * Live calculations use plans and actual balances.
+   */
+  const { error } = await db
+    .from('valuations')
+    .upsert(
+      {
+        asset_id: asset.id,
+        date,
+        value,
+        mortgage_value:
+          asset.category === 'real_estate'
+            ? mortgageAt(asset, date).balance
+            : 0
+      },
+      { onConflict: 'asset_id,date' }
+    );
+
+  if (error) throw error;
+}
+
+/* ============================================================
+   DIALOGS AND ITEM FORMS
+   ============================================================ */
+
+function dialog({
+  eyebrow = '',
+  title,
+  description = '',
+  body = '',
+  footer = ''
+}) {
+  $('dialog-eyebrow').textContent = eyebrow;
+  $('dialog-title').textContent = title;
+  $('dialog-description').textContent = description;
+  $('dialog-body').innerHTML = body;
+  $('dialog-footer').innerHTML = footer;
+  $('dialog-error').textContent = '';
+
+  if (!$('dialog').open) {
+    $('dialog').showModal();
+  }
+}
+
+function closeDialog() {
+  if ($('dialog').open) {
+    $('dialog').close();
+  }
+}
+
+function dialogError(message) {
+  $('dialog-error').textContent = message;
+}
+
+$('dialog-close').onclick = closeDialog;
+
+$('dialog').onclick = event => {
+  if (event.target === $('dialog')) {
+    closeDialog();
+  }
+};
+
+function confirmDialog(title, description, label, action) {
+  dialog({
+    eyebrow: 'Please confirm',
+    title,
+    description,
+
+    footer: `
+      <button id="cancel-action"
+              class="button secondary"
+              type="button">Cancel</button>
+
+      <button id="confirm-action"
+              class="button danger"
+              type="button">${esc(label)}</button>
+    `
+  });
+
+  $('cancel-action').onclick = closeDialog;
+
+  $('confirm-action').onclick = async () => {
+    $('confirm-action').disabled = true;
+
+    try {
+      await action();
+      closeDialog();
+    } catch (error) {
+      dialogError(error.message);
+      $('confirm-action').disabled = false;
+    }
+  };
+}
+
+function options(selected) {
+  return Object.entries(TYPES)
+    .filter(
+      ([key]) =>
+        ['cash', 'stocks', 'crypto', 'other'].includes(key)
+    )
+    .map(([key, label]) => `
+      <option value="${key}"
+              ${selected === key ? 'selected' : ''}>
+        ${label}
+      </option>
+    `).join('') +
+    categories.map(category => `
+      <option value="custom:${category.id}"
+              ${selected === `custom:${category.id}`
+                ? 'selected'
+                : ''}>
+        ${esc(category.name)}
+      </option>
+    `).join('');
+}
+
+function addDialog() {
+  dialog({
+    eyebrow: 'New item',
+    title: 'What would you like to track?',
+    description: 'Choose an item type to see the right fields.',
+
+    body: `
+      <div class="type-grid">
+        ${Object.entries(TYPES).map(([key, label]) => `
+          <button class="type" data-type="${key}"
+                  type="button">
+            <strong>${label}</strong>
+          </button>
+        `).join('')}
+      </div>
+
+      <div id="add-fields"></div>
+    `,
+
+    footer: `
+      <button id="add-cancel" class="button secondary"
+              type="button">Cancel</button>
+
+      <button id="add-save" class="button hidden"
+              type="button">Add item</button>
+    `
+  });
+
+  $('add-cancel').onclick = closeDialog;
+
+  $('dialog-body').querySelector('.type-grid').onclick = event => {
+    const choice = event.target.closest('[data-type]');
+
+    if (choice) selectType(choice.dataset.type);
+  };
+}
+
+function selectType(type) {
+  $('dialog-body')
+    .querySelectorAll('.type')
+    .forEach(button =>
+      button.classList.toggle(
+        'selected',
+        button.dataset.type === type
+      )
+    );
+
+  const property = type === 'real_estate';
+
+  $('add-fields').innerHTML = `
+    <div class="form-grid">
+      <div class="full">
+        <label for="new-name">Name</label>
+
+        <input id="new-name"
+               class="field"
+               maxlength="100"
+               placeholder="${
+                 property
+                   ? 'e.g. Apartment'
+                   : 'e.g. Savings account'
+               }">
+      </div>
+
+      ${type === 'other'
+        ? `
+          <div class="full">
+            <label for="new-category">Category</label>
+
+            <select id="new-category" class="field">
+              ${options('other')}
+            </select>
+
+            <button id="new-custom"
+                    class="button secondary small"
+                    style="margin-top:8px"
+                    type="button">
+              + Create category
+            </button>
+          </div>
+        `
+        : ''}
+
+      <div>
+        <label for="new-date">Value as of</label>
+
+        <input id="new-date"
+               class="field"
+               type="date"
+               max="${dateToday()}"
+               value="${dateToday()}">
+      </div>
+
+      <div>
+        <label for="new-value">
+          ${property
+            ? 'Full property value (€)'
+            : type === 'debt'
+              ? 'Amount owed (€)'
+              : 'Current value (€)'}
+        </label>
+
+        <input id="new-value"
+               class="field"
+               type="text"
+               inputmode="decimal">
+      </div>
+
+      ${property
+        ? `
+          <div>
+            <label for="new-share">Your ownership (%)</label>
+
+            <input id="new-share"
+                   class="field"
+                   type="text"
+                   inputmode="decimal"
+                   value="100">
+          </div>
+
+          <div>
+            <label for="new-mortgage">
+              Your mortgage at the value date (€)
+            </label>
+
+            <input id="new-mortgage"
+                   class="field"
+                   type="text"
+                   inputmode="decimal"
+                   value="0">
+          </div>
+
+          <p class="muted small full">
+            Add the property first, then open its Details
+            to set up an automatic mortgage plan.
+          </p>
+        `
+        : ''}
+
+      ${type === 'fixed_deposit'
+        ? `
+          <div class="full">
+            <label for="new-maturity">Fixed until</label>
+
+            <input id="new-maturity"
+                   class="field"
+                   type="date">
+          </div>
+        `
+        : ''}
+
+      ${!['real_estate', 'fixed_deposit', 'debt'].includes(type)
+        ? `
+          <div class="full">
+            <label class="check-label">
+              <input id="new-accessible"
+                     type="checkbox"
+                     ${['cash', 'stocks'].includes(type)
+                       ? 'checked'
+                       : ''}>
+
+              Count as accessible money
+            </label>
+          </div>
+        `
+        : ''}
+
+      ${type === 'debt'
+        ? `
+          <div class="full">
+            <label class="check-label">
+              <input id="new-debt-access"
+                     type="checkbox">
+
+              Subtract this debt from accessible balance
+            </label>
+          </div>
+        `
+        : ''}
+    </div>
+  `;
+
+  $('add-save').classList.remove('hidden');
+  $('add-save').onclick = () => saveNew(type);
+
+  if ($('new-custom')) {
+    $('new-custom').onclick = () => categoryDialog();
+  }
+}
+
+async function saveNew(type) {
+  const name = $('new-name').value.trim();
+  const date = $('new-date').value;
+  const value = parseMoney($('new-value').value);
+  const property = type === 'real_estate';
+
+  const share = property
+    ? decimal($('new-share').value)
+    : null;
+
+  const mortgage = property
+    ? parseMoney($('new-mortgage').value)
+    : 0;
+
+  const maturity = type === 'fixed_deposit'
+    ? $('new-maturity').value
+    : null;
+
+  if (
+    !name ||
+    !date ||
+    date > dateToday() ||
+    value === null ||
+    (property && (share === null || mortgage === null)) ||
+    (type === 'fixed_deposit' && !maturity)
+  ) {
+    dialogError('Complete all fields with valid amounts and dates.');
+    return;
+  }
+
+  const selected = type === 'other'
+    ? $('new-category').value
+    : type;
+
+  const custom = selected.startsWith('custom:');
+
+  $('add-save').disabled = true;
+
+  let asset = null;
+
+  try {
+    const max = Math.max(
+      0,
+      ...assets.map(item => Number(item.sort_order) || 0)
+    );
+
+    const result = await db
+      .from('assets')
+      .insert({
+        name,
+        category: custom ? 'custom' : selected,
+        custom_category_id: custom ? selected.slice(7) : null,
+        ownership_percent: share,
+        maturity_date: maturity,
+        accessible: Boolean($('new-accessible')?.checked),
+        subtract_debt_from_accessible:
+          Boolean($('new-debt-access')?.checked),
+        sort_order: max + 1
+      })
+      .select()
+      .single();
+
+    if (result.error) throw result.error;
+
+    asset = result.data;
+
+    const valuation = await db
+      .from('valuations')
+      .insert({
+        asset_id: asset.id,
+        date,
+        value,
+        mortgage_value: mortgage
+      });
+
+    if (valuation.error) throw valuation.error;
+
+    if (property) {
+      const actual = await db
+        .from('property_mortgage_overrides')
+        .insert({
+          asset_id: asset.id,
+          date,
+          balance: mortgage
+        });
+
+      if (actual.error) throw actual.error;
+    }
+
+    closeDialog();
+    await load();
+    showToast('Item added.');
+  } catch (error) {
+    if (asset) {
+      const cleanup = await db
+        .from('assets')
+        .delete()
+        .eq('id', asset.id);
+
+      dialogError(
+        cleanup.error
+          ? `${error.message} An incomplete item remains; check your Items.`
+          : `Item not added: ${error.message}`
+      );
+    } else {
+      dialogError(error.message);
+    }
+
+    $('add-save').disabled = false;
+  }
+}
+
+function categoryDialog() {
+  dialog({
+    eyebrow: 'Personal category',
+    title: 'Create category',
+
+    body: `
+      <div style="margin-top:16px">
+        <label for="category-name">Name</label>
+
+        <input id="category-name"
+               class="field"
+               maxlength="50"
+               placeholder="e.g. Pension">
+      </div>
+    `,
+
+    footer: `
+      <button id="category-cancel"
+              class="button secondary"
+              type="button">Cancel</button>
+
+      <button id="category-save"
+              class="button"
+              type="button">Create</button>
+    `
+  });
+
+  $('category-cancel').onclick = closeDialog;
+
+  $('category-save').onclick = async () => {
+    const name = $('category-name').value.trim();
+
+    if (!name) {
+      dialogError('Enter a name.');
+      return;
+    }
+
+    if (
+      [
+        ...Object.values(TYPES),
+        ...categories.map(category => category.name)
+      ].some(item =>
+        item.toLocaleLowerCase() === name.toLocaleLowerCase()
+      )
+    ) {
+      dialogError('That category already exists.');
+      return;
+    }
+
+    $('category-save').disabled = true;
+
+    const { error } = await db
+      .from('custom_categories')
+      .insert({ name });
+
+    if (error) {
+      dialogError(error.message);
+      $('category-save').disabled = false;
+    } else {
+      closeDialog();
+      await load();
+
+      showToast(
+        'Category created. Select it when adding an item.'
+      );
+    }
+  };
+}
+
+function editDialog(asset) {
+  const simple = [
+    'cash',
+    'stocks',
+    'crypto',
+    'other',
+    'custom'
+  ].includes(asset.category);
+
+  const selected = asset.category === 'custom'
+    ? `custom:${asset.custom_category_id}`
+    : asset.category;
+
+  dialog({
+    eyebrow: 'Item settings',
+    title: `Edit ${asset.name}`,
+
+    description:
+      'Changing current settings may affect historical estimates.',
+
+    body: `
+      <div class="form-grid">
+        <div class="full">
+          <label for="edit-name">Name</label>
+
+          <input id="edit-name"
+                 class="field"
+                 maxlength="100"
+                 value="${esc(asset.name)}">
+        </div>
+
+        ${simple
+          ? `
+            <div class="full">
+              <label for="edit-category">Category</label>
+
+              <select id="edit-category" class="field">
+                ${options(selected)}
+              </select>
+            </div>
+          `
+          : ''}
+
+        ${asset.category === 'fixed_deposit'
+          ? `
+            <div class="full">
+              <label for="edit-maturity">Fixed until</label>
+
+              <input id="edit-maturity"
+                     class="field"
+                     type="date"
+                     value="${asset.maturity_date ?? ''}">
+            </div>
+          `
+          : ''}
+
+        ${asset.category === 'real_estate'
+          ? `
+            <div class="full">
+              <label for="edit-share">
+                Ownership from today (%)
+              </label>
+
+              <input id="edit-share"
+                     class="field"
+                     type="text"
+                     inputmode="decimal"
+                     value="${shareAt(asset, dateToday())}">
+
+              <p class="muted small">
+                Earlier ownership percentages are preserved.
+                Edit the mortgage separately in Details.
+              </p>
+            </div>
+          `
+          : ''}
+
+        ${simple
+          ? `
+            <label class="check-label full">
+              <input id="edit-access"
+                     type="checkbox"
+                     ${asset.accessible ? 'checked' : ''}>
+
+              Count as accessible money
+            </label>
+          `
+          : ''}
+
+        ${asset.category === 'debt'
+          ? `
+            <label class="check-label full">
+              <input id="edit-debt-access"
+                     type="checkbox"
+                     ${asset.subtract_debt_from_accessible
+                       ? 'checked'
+                       : ''}>
+
+              Subtract from accessible balance
+            </label>
+          `
+          : ''}
+      </div>
+    `,
+
+    footer: `
+      <button id="edit-cancel"
+              class="button secondary"
+              type="button">Cancel</button>
+
+      <button id="edit-save"
+              class="button"
+              type="button">Save changes</button>
+    `
+  });
+
+  $('edit-cancel').onclick = closeDialog;
+
+  $('edit-save').onclick = async () => {
+    const name = $('edit-name').value.trim();
+
+    const share = $('edit-share')
+      ? decimal($('edit-share').value)
+      : null;
+
+    if (
+      !name ||
+      ($('edit-share') && share === null) ||
+      ($('edit-maturity') && !$('edit-maturity').value)
+    ) {
+      dialogError('Check the required fields.');
+      return;
+    }
+
+    $('edit-save').disabled = true;
+
+    try {
+      if (
+        $('edit-share') &&
+        share !== shareAt(asset, dateToday())
+      ) {
+        const result = await db
+          .from('property_ownership_changes')
+          .upsert(
+            {
+              asset_id: asset.id,
+              effective_date: dateToday(),
+              ownership_percent: share
+            },
+            { onConflict: 'asset_id,effective_date' }
+          );
+
+        if (result.error) throw result.error;
+      }
+
+      const patch = { name };
+
+      if ($('edit-category')) {
+        const choice = $('edit-category').value;
+
+        patch.category = choice.startsWith('custom:')
+          ? 'custom'
+          : choice;
+
+        patch.custom_category_id =
+          choice.startsWith('custom:')
+            ? choice.slice(7)
+            : null;
+      }
+
+      if ($('edit-maturity')) {
+        patch.maturity_date = $('edit-maturity').value;
+      }
+
+      if ($('edit-access')) {
+        patch.accessible = $('edit-access').checked;
+      }
+
+      if ($('edit-debt-access')) {
+        patch.subtract_debt_from_accessible =
+          $('edit-debt-access').checked;
+      }
+
+      const { error } = await db
+        .from('assets')
+        .update(patch)
+        .eq('id', asset.id);
+
+      if (error) throw error;
+
+      closeDialog();
+      await load();
+      showToast('Item updated.');
+    } catch (error) {
+      dialogError(error.message);
+      $('edit-save').disabled = false;
+      await load();
+    }
+  };
+}
+
+function detailsDialog(asset) {
+  const entries = valuations
+    .filter(valuation => valuation.asset_id === asset.id)
+    .reverse();
+
+  const entry = latestValues(dateToday()).get(asset.id);
+
+  const mortgage = asset.category === 'real_estate'
+    ? mortgageAt(asset, dateToday())
+    : null;
+
+  dialog({
+    eyebrow: categoryName(asset),
+    title: asset.name,
+
+    description: asset.archived_on
+      ? `Archived ${asset.archived_on} · earlier history is retained.`
+      : `Current contribution: ${
+          entry
+            ? money(contribution(asset, entry, dateToday()))
+            : 'No value'
+        }`,
+
+    body: `
+      ${mortgage
+        ? `
+          <div class="notice green" style="margin-top:15px">
+            <strong>
+              Mortgage balance: ${money(mortgage.balance)}
+            </strong>
+
+            <br>${esc(mortgage.source)}
+
+            ${mortgage.plan?.fixed_interest_end_date
+              ? `
+                <br>Fixed interest until:
+                <strong>
+                  ${mortgage.plan.fixed_interest_end_date}
+                </strong>
+              `
+              : ''}
+
+            ${mortgage.payment !== null
+              ? `
+                <br>Calculated regular payment:
+                <strong>
+                  ${money(mortgage.payment)}/month
+                </strong>
+              `
+              : ''}
+
+            ${mortgage.plan
+              ? `
+                <br>Remaining scheduled payments at plan start:
+                <strong>
+                  ${mortgage.remainingMonths}
+                  (${formatDuration(mortgage.remainingMonths)})
+                </strong>
+              `
+              : ''}
+
+            <br>Projection only; confirm against your lender.
+          </div>
+
+          ${mortgage.fixedPeriodExpired
+            ? `
+              <div class="notice">
+                <strong>Fixed-interest period ended.</strong>
+                Scheduled payments are no longer projected
+                using the expired rate. Enter an actual balance
+                or add a new mortgage plan.
+              </div>
+            `
+            : ''}
+
+          <button id="manage-mortgage"
+                  class="button secondary"
+                  style="margin-top:13px"
+                  type="button">
+            Mortgage plans &amp; actual balances
+          </button>
+        `
+        : ''}
+
+      ${asset.archived_on
+        ? ''
+        : `
+          <h3 style="margin-top:22px">
+            Add or update value
+          </h3>
+
+          <div class="form-grid">
+            <div>
+              <label for="detail-date">Date</label>
+
+              <input id="detail-date"
+                     class="field"
+                     type="date"
+                     max="${dateToday()}"
+                     value="${dateToday()}">
+            </div>
+
+            <div>
+              <label for="detail-value">
+                ${asset.category === 'real_estate'
+                  ? 'Full property value (€)'
+                  : asset.category === 'debt'
+                    ? 'Amount owed (€)'
+                    : 'Value (€)'}
+              </label>
+
+              <input id="detail-value"
+                     class="field"
+                     type="text"
+                     inputmode="decimal"
+                     value="${esc(inputMoney(entry?.value))}">
+            </div>
+
+            <div>
+              <button id="detail-save"
+                      class="button"
+                      type="button">Save value</button>
+            </div>
+          </div>
+        `}
+
+      <h3 style="margin-top:24px">Value history</h3>
+
+      <div id="value-history">
+        ${entries.length
+          ? entries.map(valuation => `
+              <div class="history-row"
+                   data-entry="${valuation.id}">
+                <span>
+                  ${valuation.date} · ${money(valuation.value)}
+                </span>
+
+                <button class="button secondary small edit-entry"
+                        type="button">Edit</button>
+              </div>
+            `).join('')
+          : '<p class="muted small">No entries yet.</p>'}
+      </div>
+    `,
+
+    footer: `
+      ${asset.archived_on
+        ? ''
+        : `
+          <button id="archive"
+                  class="button danger"
+                  type="button">Archive item</button>
+        `}
+
+      <button id="detail-close"
+              class="button secondary"
+              type="button">Close</button>
+    `
+  });
+
+  $('detail-close').onclick = closeDialog;
+
+  if ($('manage-mortgage')) {
+    $('manage-mortgage').onclick =
+      () => mortgageDialog(asset);
+  }
+
+  if ($('detail-save')) {
+    $('detail-save').onclick = async () => {
+      const date = $('detail-date').value;
+      const value = parseMoney($('detail-value').value);
+
+      if (
+        !date ||
+        date > dateToday() ||
+        value === null
+      ) {
+        dialogError(
+          'Enter a valid date and non-negative value.'
+        );
+        return;
+      }
+
+      $('detail-save').disabled = true;
+
+      try {
+        await saveValue(asset, date, value);
+        closeDialog();
+        await load();
+        showToast('Value saved.');
+      } catch (error) {
+        dialogError(error.message);
+        $('detail-save').disabled = false;
+      }
+    };
+  }
+
+  $('value-history').onclick = event => {
+    const row = event.target.closest('[data-entry]');
+
+    if (
+      !event.target.closest('.edit-entry') ||
+      !row
+    ) {
+      return;
+    }
+
+    const valuation = valuations.find(
+      item => item.id === row.dataset.entry
+    );
+
+    if (valuation) {
+      editValueDialog(asset, valuation);
+    }
+  };
+
+  if ($('archive')) {
+    $('archive').onclick = () => confirmDialog(
+      `Archive ${asset.name}?`,
+      'It leaves tracked net worth from today. Earlier history remains.',
+      'Archive item',
+      async () => {
+        const { error } = await db
+          .from('assets')
+          .update({ archived_on: dateToday() })
+          .eq('id', asset.id);
+
+        if (error) throw error;
+
+        await load();
+        showToast('Item archived.');
+      }
+    );
+  }
+}
+
+function editValueDialog(asset, valuation) {
+  dialog({
+    eyebrow: 'Correct history',
+    title: asset.name,
+
+    description:
+      'Editing an entry may change earlier net-worth figures.',
+
+    body: `
+      <div class="form-grid">
+        <div>
+          <label for="history-date">Date</label>
+
+          <input id="history-date"
+                 class="field"
+                 type="date"
+                 max="${dateToday()}"
+                 value="${valuation.date}">
+        </div>
+
+        <div>
+          <label for="history-value">
+            ${asset.category === 'real_estate'
+              ? 'Full property value (€)'
+              : 'Value (€)'}
+          </label>
+
+          <input id="history-value"
+                 class="field"
+                 type="text"
+                 inputmode="decimal"
+                 value="${esc(inputMoney(valuation.value))}">
+        </div>
+      </div>
+
+      ${asset.category === 'real_estate'
+        ? `
+          <p class="notice" style="margin-top:14px">
+            This edits the property's value only.
+            Change an actual mortgage balance under
+            Mortgage plans &amp; actual balances.
+          </p>
+        `
+        : ''}
+    `,
+
+    footer: `
+      <button id="history-delete"
+              class="button danger"
+              type="button">Delete entry</button>
+
+      <button id="history-cancel"
+              class="button secondary"
+              type="button">Cancel</button>
+
+      <button id="history-save"
+              class="button"
+              type="button">Save correction</button>
+    `
+  });
+
+  $('history-cancel').onclick = () => detailsDialog(asset);
+
+  $('history-save').onclick = async () => {
+    const date = $('history-date').value;
+    const value = parseMoney($('history-value').value);
+
+    if (
+      !date ||
+      date > dateToday() ||
+      value === null
+    ) {
+      dialogError(
+        'Enter a valid date and non-negative value.'
+      );
+      return;
+    }
+
+    $('history-save').disabled = true;
+
+    const { error } = await db
+      .from('valuations')
+      .update({ date, value })
+      .eq('id', valuation.id);
+
+    if (error) {
+      dialogError(error.message);
+      $('history-save').disabled = false;
+    } else {
+      closeDialog();
+      await load();
+      showToast('Value corrected.');
+    }
+  };
+
+  $('history-delete').onclick = () => confirmDialog(
+    `Delete value from ${valuation.date}?`,
+    'This removes the recorded property/asset value, not a separate mortgage balance.',
+    'Delete value',
+    async () => {
+      const { error } = await db
+        .from('valuations')
+        .delete()
+        .eq('id', valuation.id);
+
+      if (error) throw error;
+
+      await load();
+      showToast('Value deleted.');
+    }
+  );
+}
+
+/* ============================================================
+   MORTGAGES
+   ============================================================ */
+
+function mortgageDialog(asset) {
+  if (asset.category !== 'real_estate') return;
+
+  const current = mortgageAt(asset, dateToday());
+
+  const assetPlans = plans
+    .filter(plan => plan.asset_id === asset.id)
+    .reverse();
+
+  const actuals = overrides
+    .filter(actual => actual.asset_id === asset.id)
+    .reverse();
+
+  dialog({
+    eyebrow: 'Property mortgage',
+    title: asset.name,
+
+    description:
+      'Use the original payment date and total duration. Remaining payments are calculated automatically.',
+
+    body: `
+      <div class="notice green" style="margin-top:16px">
+        Estimated balance:
+        <strong>${money(current.balance)}</strong>
+
+        <br>${esc(current.source)}
+
+        ${current.plan?.fixed_interest_end_date
+          ? `
+            <br>Fixed interest until:
+            <strong>
+              ${current.plan.fixed_interest_end_date}
+            </strong>
+          `
+          : ''}
+
+        ${current.plan
+          ? `
+            <br>Remaining payments at plan start:
+            <strong>
+              ${current.remainingMonths}
+              (${formatDuration(current.remainingMonths)})
+            </strong>
+          `
+          : ''}
+
+        ${current.payment !== null
+          ? `
+            <br>Calculated regular payment:
+            <strong>${money(current.payment)}/month</strong>
+          `
+          : ''}
+      </div>
+
+      ${current.fixedPeriodExpired
+        ? `
+          <div class="notice">
+            <strong>Fixed-interest period ended.</strong>
+            Payments after that date are not projected
+            using the expired rate. Enter an actual balance
+            or create a new plan.
+          </div>
+        `
+        : ''}
+
+      <h3 style="margin-top:25px">
+        <span id="plan-form-title">
+          Add a mortgage plan
+        </span>
+      </h3>
+
+      <p class="muted small">
+        If the mortgage started years ago, enter its
+        <strong>original first payment date</strong> and
+        <strong>total duration</strong>. The opening balance
+        should be the balance on the plan start date.
+        For a refinance, create a new plan with its new
+        total duration and first payment date.
+      </p>
+
+      <div class="form-grid">
+        <div>
+          <label for="plan-date">
+            Plan starts / balance date
+          </label>
+
+          <input id="plan-date"
+                 class="field"
+                 type="date"
+                 max="${dateToday()}"
+                 value="${dateToday()}">
+        </div>
+
+        <div>
+          <label for="plan-opening">
+            Balance at plan start (€)
+          </label>
+
+          <input id="plan-opening"
+                 class="field"
+                 type="text"
+                 inputmode="decimal"
+                 value="${esc(inputMoney(current.balance))}">
+        </div>
+
+        <div>
+          <label for="plan-rate">
+            Annual interest rate (%)
+          </label>
+
+          <input id="plan-rate"
+                 class="field"
+                 type="text"
+                 inputmode="decimal"
+                 placeholder="e.g. 3,5">
+        </div>
+
+        <div>
+          <label for="plan-first">
+            Original first payment date
+          </label>
+
+          <input id="plan-first"
+                 class="field"
+                 type="date">
+        </div>
+
+        <div>
+          <label for="plan-years">
+            Total duration in years
+          </label>
+
+          <input id="plan-years"
+                 class="field"
+                 type="number"
+                 min="0"
+                 max="50"
+                 value="20">
+        </div>
+
+        <div>
+          <label for="plan-months">
+            Additional months
+          </label>
+
+          <input id="plan-months"
+                 class="field"
+                 type="number"
+                 min="0"
+                 max="11"
+                 value="0">
+        </div>
+
+        <div class="full">
+          <label for="plan-fixed-end">
+            Fixed interest until
+          </label>
+
+          <input id="plan-fixed-end"
+                 class="field"
+                 type="date">
+
+          <p class="muted small">
+            This can end well before the mortgage's
+            total duration.
+          </p>
+        </div>
+
+        <div id="plan-preview"
+             class="notice green full">
+          Enter the dates, balance, interest rate
+          and total duration to see the calculated
+          remaining payments and monthly payment.
+        </div>
+
+        <div class="full actions">
+          <button id="plan-save"
+                  class="button"
+                  type="button">
+            Save mortgage plan
+          </button>
+
+          <button id="plan-new"
+                  class="button secondary small hidden"
+                  type="button">
+            Start a new plan
+          </button>
+        </div>
+      </div>
+
+      <h3 style="margin-top:26px">
+        Record an actual balance
+      </h3>
+
+      <p class="muted small">
+        Enter a balance reported by your lender.
+        It overrides the projection on that date.
+      </p>
+
+      <div class="form-grid">
+        <div>
+          <label for="actual-date">Date</label>
+
+          <input id="actual-date"
+                 class="field"
+                 type="date"
+                 max="${dateToday()}"
+                 value="${dateToday()}">
+        </div>
+
+        <div>
+          <label for="actual-balance">
+            Actual balance (€)
+          </label>
+
+          <input id="actual-balance"
+                 class="field"
+                 type="text"
+                 inputmode="decimal"
+                 value="${esc(inputMoney(current.balance))}">
+        </div>
+
+        <div class="full">
+          <button id="actual-save"
+                  class="button secondary"
+                  type="button">
+            Save actual balance
+          </button>
+        </div>
+      </div>
+
+      <h3 style="margin-top:26px">
+        Mortgage plans
+      </h3>
+
+      <div id="plan-list">
+        ${assetPlans.length
+          ? assetPlans.map(plan => {
+              const legacy =
+                plan.total_duration_months == null;
+
+              const remaining =
+                planRemainingMonths(plan);
+
+              return `
+                <div class="history-row"
+                     data-plan="${plan.id}">
+                  <span class="small">
+                    <strong>${plan.effective_date}</strong>
+
+                    ${legacy
+                      ? ' · Legacy plan: previously entered remaining term'
+                      : ` · Total duration ${
+                          formatDuration(
+                            Number(plan.total_duration_months)
+                          )
+                        }`}
+
+                    · Remaining at plan start
+                    <strong>
+                      ${formatDuration(remaining)}
+                    </strong>
+
+                    · First payment ${plan.first_payment_date}
+
+                    · Opening balance
+                    ${money(plan.opening_balance)}
+
+                    · ${plan.annual_rate}% annual rate
+
+                    · Fixed interest until
+                    <strong>
+                      ${plan.fixed_interest_end_date ??
+                        'not recorded'}
+                    </strong>
+
+                    · Calculated payment
+                    ${money(
+                      annuity(
+                        Number(plan.opening_balance),
+                        Number(plan.annual_rate),
+                        remaining
+                      )
+                    )}/month
+                  </span>
+
+                  <span class="actions">
+                    <button class="button secondary small edit-plan"
+                            type="button">
+                      Edit
+                    </button>
+
+                    <button class="button danger small delete-plan"
+                            type="button">
+                      Delete
+                    </button>
+                  </span>
+                </div>
+              `;
+            }).join('')
+          : '<p class="muted small">No plan yet.</p>'}
+      </div>
+
+      <h3 style="margin-top:23px">
+        Actual balances
+      </h3>
+
+      <div id="actual-list">
+        ${actuals.length
+          ? actuals.map(actual => `
+              <div class="history-row"
+                   data-actual="${actual.id}">
+                <span>
+                  ${actual.date} · ${money(actual.balance)}
+                </span>
+
+                <button class="button danger small delete-actual"
+                        type="button">
+                  Delete
+                </button>
+              </div>
+            `).join('')
+          : `
+            <p class="muted small">
+              No actual balances entered.
+            </p>
+          `}
+      </div>
+
+      <p class="notice" style="margin-top:17px">
+        This is a simplified fixed-rate monthly model.
+        It excludes fees, insurance, daily interest,
+        payment holidays and unscheduled repayments.
+        Confirm balances with your lender.
+      </p>
+    `,
+
+    footer: `
+      <button id="mortgage-close"
+              class="button secondary"
+              type="button">
+        Close
+      </button>
+    `
+  });
+
+  $('mortgage-close').onclick = closeDialog;
+
+  function formNumbers() {
+    const yearsText = $('plan-years').value;
+    const monthsText = $('plan-months').value;
+
+    if (
+      !/^\d+$/.test(yearsText) ||
+      !/^\d+$/.test(monthsText)
+    ) {
+      return null;
+    }
+
+    const years = Number(yearsText);
+    const months = Number(monthsText);
+    const totalMonths = years * 12 + months;
+
+    if (
+      years < 0 ||
+      months < 0 ||
+      months > 11 ||
+      totalMonths < 1 ||
+      totalMonths > 600
+    ) {
+      return null;
+    }
+
+    return { years, months, totalMonths };
+  }
+
+  function calculatedRemaining() {
+    const duration = formNumbers();
+    const effective = $('plan-date').value;
+    const first = $('plan-first').value;
+
+    if (!duration || !effective || !first) return null;
+
+    let elapsed = 0;
+
+    for (let i = 0; i < duration.totalMonths; i++) {
+      if (addMonths(first, i) < effective) {
+        elapsed++;
+      } else {
+        break;
+      }
+    }
+
+    return duration.totalMonths - elapsed;
+  }
+
+  function preview() {
+    const principal = parseMoney(
+      $('plan-opening').value
+    );
+
+    const rate = decimal(
+      $('plan-rate').value
+    );
+
+    const remaining =
+      calculatedRemaining();
+
+    if (
+      principal === null ||
+      rate === null ||
+      remaining === null ||
+      remaining < 1
+    ) {
+      $('plan-preview').textContent =
+        'Enter valid dates, balance, rate and total duration. ' +
+        'At least one payment must remain when the plan starts.';
+
+      return;
+    }
+
+    $('plan-preview').textContent =
+      `Calculated remaining term at plan start: ` +
+      `${formatDuration(remaining)} ` +
+      `(${remaining} payments). ` +
+      `Estimated monthly payment: ` +
+      `${money(annuity(principal, rate, remaining))}.`;
+  }
+
+  for (const id of [
+    'plan-date',
+    'plan-opening',
+    'plan-rate',
+    'plan-first',
+    'plan-years',
+    'plan-months'
+  ]) {
+    $(id).addEventListener('input', preview);
+    $(id).addEventListener('change', preview);
+  }
+
+  function resetPlanForm() {
+    $('plan-date').readOnly = false;
+    $('plan-date').value = dateToday();
+    $('plan-opening').value = inputMoney(current.balance);
+    $('plan-rate').value = '';
+    $('plan-first').value = '';
+    $('plan-years').value = '20';
+    $('plan-months').value = '0';
+    $('plan-fixed-end').value = '';
+
+    $('plan-form-title').textContent =
+      'Add a mortgage plan';
+
+    $('plan-new').classList.add('hidden');
+
+    dialogError('');
+    preview();
+  }
+
+  $('plan-new').onclick = resetPlanForm;
+
+  $('plan-list').onclick = event => {
+    const row = event.target.closest('[data-plan]');
+
+    if (!row) return;
+
+    const plan = plans.find(
+      item => item.id === row.dataset.plan
+    );
+
+    if (!plan) return;
+
+    if (event.target.closest('.edit-plan')) {
+      $('plan-date').value = plan.effective_date;
+      $('plan-date').readOnly = true;
+
+      $('plan-opening').value =
+        inputMoney(plan.opening_balance);
+
+      $('plan-rate').value =
+        inputMoney(plan.annual_rate);
+
+      $('plan-first').value =
+        plan.first_payment_date;
+
+      const displayedMonths =
+        plan.total_duration_months == null
+          ? Number(plan.term_months)
+          : Number(plan.total_duration_months);
+
+      $('plan-years').value =
+        Math.floor(displayedMonths / 12);
+
+      $('plan-months').value =
+        displayedMonths % 12;
+
+      $('plan-fixed-end').value =
+        plan.fixed_interest_end_date ?? '';
+
+      $('plan-form-title').textContent =
+        `Edit plan from ${plan.effective_date}`;
+
+      $('plan-new').classList.remove('hidden');
+
+      dialogError(
+        plan.total_duration_months == null
+          ? 'Legacy plan: verify the ORIGINAL first payment date and TOTAL duration before saving. The pre-filled duration is the old remaining term.'
+          : ''
+      );
+
+      preview();
+
+      $('plan-date').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      return;
+    }
+
+    if (event.target.closest('.delete-plan')) {
+      confirmDialog(
+        'Delete mortgage plan?',
+        'This can change projected balances and historical net worth.',
+        'Delete plan',
+        async () => {
+          const { error } = await db
+            .from('property_loan_plans')
+            .delete()
+            .eq('id', plan.id);
+
+          if (error) throw error;
+
+          await load();
+          showToast('Mortgage plan deleted.');
+        }
+      );
+    }
+  };
+
+  $('plan-save').onclick = async () => {
+    const effective = $('plan-date').value;
+    const first = $('plan-first').value;
+    const fixedEnd = $('plan-fixed-end').value;
+
+    const principal = parseMoney(
+      $('plan-opening').value
+    );
+
+    const rate = decimal(
+      $('plan-rate').value
+    );
+
+    const duration = formNumbers();
+    const remaining = calculatedRemaining();
+
+    if (
+      !effective ||
+      effective > dateToday() ||
+      !first ||
+      !fixedEnd ||
+      fixedEnd < effective ||
+      principal === null ||
+      rate === null ||
+      !duration ||
+      remaining === null ||
+      remaining < 1
+    ) {
+      dialogError(
+        'Check the dates, balance, rate and total duration. ' +
+        'At least one scheduled payment must remain on the ' +
+        'plan start date. Fixed interest must end on or ' +
+        'after the plan start date.'
+      );
+
+      return;
+    }
+
+    $('plan-save').disabled = true;
+
+    const { error } = await db
+      .from('property_loan_plans')
+      .upsert(
+        {
+          asset_id: asset.id,
+          effective_date: effective,
+          opening_balance: principal,
+          annual_rate: rate,
+          term_months: remaining,
+          total_duration_months:
+            duration.totalMonths,
+          first_payment_date: first,
+          fixed_interest_end_date: fixedEnd
+        },
+        {
+          onConflict: 'asset_id,effective_date'
+        }
+      );
+
+    if (error) {
+      dialogError(error.message);
+      $('plan-save').disabled = false;
+    } else {
+      await load();
+      mortgageDialog(asset);
+
+      showToast(
+        'Mortgage plan saved. Check the projected balance.'
+      );
+    }
+  };
+
+  $('actual-save').onclick = async () => {
+    const date = $('actual-date').value;
+
+    const balance = parseMoney(
+      $('actual-balance').value
+    );
+
+    if (
+      !date ||
+      date > dateToday() ||
+      balance === null
+    ) {
+      dialogError(
+        'Enter a valid date and non-negative balance.'
+      );
+
+      return;
+    }
+
+    $('actual-save').disabled = true;
+
+    const { error } = await db
+      .from('property_mortgage_overrides')
+      .upsert(
+        {
+          asset_id: asset.id,
+          date,
+          balance
+        },
+        {
+          onConflict: 'asset_id,date'
+        }
+      );
+
+    if (error) {
+      dialogError(error.message);
+      $('actual-save').disabled = false;
+    } else {
+      await load();
+      mortgageDialog(asset);
+
+      showToast('Actual mortgage balance saved.');
+    }
+  };
+
+  $('actual-list').onclick = event => {
+    const row = event.target.closest('[data-actual]');
+
+    if (
+      !row ||
+      !event.target.closest('.delete-actual')
+    ) {
+      return;
+    }
+
+    confirmDialog(
+      'Delete actual mortgage balance?',
+      'The balance on this date and future projections may change.',
+      'Delete balance',
+      async () => {
+        const { error } = await db
+          .from('property_mortgage_overrides')
+          .delete()
+          .eq('id', row.dataset.actual);
+
+        if (error) throw error;
+
+        await load();
+        showToast('Actual balance deleted.');
+      }
+    );
+  };
+}
+
+/* ============================================================
+   CSV EXPORT
+   ============================================================ */
+
+function csvCell(value) {
+  let text = String(value ?? '');
+
+  if (/^\s*[=+\-@]/.test(text)) {
+    text = "'" + text;
+  }
+
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+$('export').onclick = () => {
+  if (!assets.length) {
+    showToast('Nothing to export.', true);
+    return;
+  }
+
+  const rows = [[
+    'Record type',
+    'Item ID',
+    'Name',
+    'Category',
+    'Date',
+    'Value EUR',
+    'Mortgage EUR',
+    'Ownership percent',
+    'Annual rate percent',
+    'Remaining months at plan start',
+    'Total duration months',
+    'Original first payment date',
+    'Fixed interest until',
+    'Archived on',
+    'Accessible',
+    'Subtract debt from accessible',
+    'Fixed deposit until'
+  ]];
+
+  for (const asset of assets) {
+    const common = [
+      asset.id,
+      asset.name,
+      categoryName(asset)
+    ];
+
+    rows.push([
+      'Item',
+      ...common,
+      '',
+      '',
+      '',
+      asset.ownership_percent ?? '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      asset.archived_on ?? '',
+      asset.accessible ? 'Yes' : 'No',
+      asset.subtract_debt_from_accessible
+        ? 'Yes'
+        : 'No',
+      asset.maturity_date ?? ''
+    ]);
+
+    for (
+      const valuation of
+      valuations.filter(
+        item => item.asset_id === asset.id
+      )
+    ) {
+      rows.push([
+        'Valuation',
+        ...common,
+        valuation.date,
+        valuation.value,
+
+        asset.category === 'real_estate'
+          ? mortgageAt(asset, valuation.date).balance
+          : '',
+
+        asset.category === 'real_estate'
+          ? shareAt(asset, valuation.date)
+          : '',
+
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ]);
+    }
+
+    for (
+      const plan of
+      plans.filter(
+        item => item.asset_id === asset.id
+      )
+    ) {
+      rows.push([
+        'Loan plan',
+        ...common,
+        plan.effective_date,
+        plan.opening_balance,
+        '',
+        '',
+        plan.annual_rate,
+        plan.term_months,
+        plan.total_duration_months ?? '',
+        plan.first_payment_date,
+        plan.fixed_interest_end_date ?? '',
+        '',
+        '',
+        '',
+        ''
+      ]);
+    }
+
+    for (
+      const actual of
+      overrides.filter(
+        item => item.asset_id === asset.id
+      )
+    ) {
+      rows.push([
+        'Actual mortgage',
+        ...common,
+        actual.date,
+        '',
+        actual.balance,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ]);
+    }
+
+    for (
+      const change of
+      ownership.filter(
+        item => item.asset_id === asset.id
+      )
+    ) {
+      rows.push([
+        'Ownership change',
+        ...common,
+        change.effective_date,
+        '',
+        '',
+        change.ownership_percent,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        ''
+      ]);
+    }
+  }
+
+  const csv = rows
+    .map(row => row.map(csvCell).join(','))
+    .join('\r\n');
+
+  const url = URL.createObjectURL(
+    new Blob(
+      ['\uFEFF', csv],
+      { type: 'text/csv;charset=utf-8' }
+    )
+  );
+
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = `wealth-tracker-${dateToday()}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+navigate('dashboard');
+</script>
+</body>
+</html>
