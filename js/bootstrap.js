@@ -1,3 +1,0 @@
-'use strict';
-
-navigate('dashboard');
